@@ -1,0 +1,86 @@
+#include <assert.h>
+#include <stdio.h>
+
+#include <algorithm>
+
+#include "sudoku.h"
+
+int board[N];
+int spaces[N];
+int nspaces;
+int (*chess)[COL] = (int (*)[COL])board;
+
+static void find_spaces()
+{
+	nspaces = 0;
+	for (int cell = 0; cell < N; ++cell)
+	{
+		if (board[cell] == 0)
+			spaces[nspaces++] = cell;
+	}
+}
+
+// 将puzzle写入board
+void input(const char in[N])
+{
+	for (int cell = 0; cell < N; ++cell)
+	{
+		board[cell] = in[cell] - '0';
+		assert(0 <= board[cell] && board[cell] <= NUM);
+	}
+	find_spaces();
+}
+
+// 检查board是否为正确解
+bool solved()
+{
+	for (int row = 0; row < ROW; ++row)
+	{
+		// check row
+		int occurs[10] = {0};
+		for (int col = 0; col < COL; ++col)
+		{
+			int val = chess[row][col];
+			assert(1 <= val && val <= NUM);
+			++occurs[val];
+		}
+
+		if (std::count(occurs, occurs + 10, 1) != NUM)
+			return false;
+	}
+
+	for (int col = 0; col < COL; ++col)
+	{
+		int occurs[10] = {0};
+		for (int row = 0; row < ROW; ++row)
+		{
+			int val = chess[row][col];
+			// assert(1 <= val && val <= NUM);
+			++occurs[val];
+		}
+
+		if (std::count(occurs, occurs + 10, 1) != NUM)
+			return false;
+	}
+
+	for (int row = 0; row < ROW; row += 3)
+	{
+		for (int col = 0; col < COL; col += 3)
+		{
+			int occurs[10] = {0};
+			++occurs[chess[row][col]];
+			++occurs[chess[row][col + 1]];
+			++occurs[chess[row][col + 2]];
+			++occurs[chess[row + 1][col]];
+			++occurs[chess[row + 1][col + 1]];
+			++occurs[chess[row + 1][col + 2]];
+			++occurs[chess[row + 2][col]];
+			++occurs[chess[row + 2][col + 1]];
+			++occurs[chess[row + 2][col + 2]];
+
+			if (std::count(occurs, occurs + 10, 1) != NUM)
+				return false;
+		}
+	}
+	return true;
+}
