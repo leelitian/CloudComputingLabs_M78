@@ -45,7 +45,7 @@ bool solved()
 			++occurs[val];
 		}
 
-		if (std::count(occurs, occurs + 10, 1) != NUM)
+		if (std::count(occurs, occurs + 10, 1) != NUM) // 同一行的方格都已经填充了数字
 			return false;
 	}
 
@@ -63,7 +63,7 @@ bool solved()
 			return false;
 	}
 
-	for (int row = 0; row < ROW; row += 3)
+	for (int row = 0; row < ROW; row += 3) // 每次查看一个3*3方格
 	{
 		for (int col = 0; col < COL; col += 3)
 		{
