@@ -1,7 +1,10 @@
-CXXFLAGS+=-O2 -ggdb -DDEBUG
-CXXFLAGS+=-Wall -Wextra
+# CXXFLAGS+=-O2 -ggdb -DDEBUG
+# CXXFLAGS+=-Wall -Wextra
 
 all: sudoku_solve
 
 sudoku_solve: main.cc sudoku_basic.cc sudoku_dancing_links.cc
-	g++ -O2 -o $@ $^
+	g++ -O3 -pthread -o $@ $^
+
+clean :
+	rm sudoku_solve

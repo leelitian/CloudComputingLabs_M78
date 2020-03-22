@@ -3,49 +3,49 @@
 #include <ctime>
 #include <cstring>
 using namespace std;
- 
+
 int sudo[9][9], hole[9][9];
- 
+
 bool set(int x, int y, int val)
 {
-	if (sudo[y][x] != 0)		//·Ç¿Õ
+	if (sudo[y][x] != 0) //éç©º
 		return false;
 	int x0, y0;
-	for (x0=0; x0<9; x0++)
+	for (x0 = 0; x0 < 9; x0++)
 	{
-		if (sudo[y][x0] == val)	//ĞĞ³åÍ»
+		if (sudo[y][x0] == val) //è¡Œå†²çª
 			return false;
 	}
-	for (y0=0; y0<9; y0++)
+	for (y0 = 0; y0 < 9; y0++)
 	{
-		if (sudo[y0][x] == val)	//ÁĞ³åÍ»
+		if (sudo[y0][x] == val) //åˆ—å†²çª
 			return false;
 	}
-	for (y0=y/3*3; y0<y/3*3+3; y0++)
+	for (y0 = y / 3 * 3; y0 < y / 3 * 3 + 3; y0++)
 	{
-		for (x0=x/3*3; x0<x/3*3+3; x0++)
+		for (x0 = x / 3 * 3; x0 < x / 3 * 3 + 3; x0++)
 		{
-			if (sudo[y0][x0] == val) //¸ñ³åÍ»
+			if (sudo[y0][x0] == val) //æ ¼å†²çª
 				return false;
 		}
 	}
 	sudo[y][x] = val;
 	return true;
 }
- 
+
 void reset(int x, int y)
 {
 	sudo[y][x] = 0;
 }
- 
-void initXOrd(int* xOrd)	//0~9Ëæ»úĞòÁĞ
+
+void initXOrd(int *xOrd) //0~9éšæœºåºåˆ—
 {
 	int i, k, tmp;
-	for (i=0; i<9; i++)
+	for (i = 0; i < 9; i++)
 	{
 		xOrd[i] = i;
 	}
-	for (i=0; i<9; i++)
+	for (i = 0; i < 9; i++)
 	{
 		k = rand() % 9;
 		tmp = xOrd[k];
@@ -53,84 +53,86 @@ void initXOrd(int* xOrd)	//0~9Ëæ»úĞòÁĞ
 		xOrd[i] = tmp;
 	}
 }
- 
+
 bool fillFrom(int y, int val)
 {
 	int xOrd[9];
-	initXOrd(xOrd);		//Éú³Éµ±Ç°ĞĞµÄÉ¨ÃèĞòÁĞ
-	for (int i=0; i<9; i++)
+	initXOrd(xOrd); //ç”Ÿæˆå½“å‰è¡Œçš„æ‰«æåºåˆ—
+	for (int i = 0; i < 9; i++)
 	{
 		int x = xOrd[i];
 		if (set(x, y, val))
 		{
-			if (y == 8)					//µ½ÁË×îºóÒ»ĞĞ
+			if (y == 8) //åˆ°äº†æœ€åä¸€è¡Œ
 			{
-				if (val == 9 || fillFrom(0, val+1))	//µ±Ç°Ìî9Ôò½áÊø, ·ñÔò´ÓµÚÒ»ĞĞÌîÏÂÒ»¸öÊı
-					return true;
-			} 
-			else
-			{
-				if (fillFrom(y+1, val))	//ÏÂÒ»ĞĞ¼ÌĞøÌîµ±Ç°Êı
+				if (val == 9 || fillFrom(0, val + 1)) //å½“å‰å¡«9åˆ™ç»“æŸ, å¦åˆ™ä»ç¬¬ä¸€è¡Œå¡«ä¸‹ä¸€ä¸ªæ•°
 					return true;
 			}
-			reset(x, y);	//»ØËİ
+			else
+			{
+				if (fillFrom(y + 1, val)) //ä¸‹ä¸€è¡Œç»§ç»­å¡«å½“å‰æ•°
+					return true;
+			}
+			reset(x, y); //å›æº¯
 		}
 	}
 	return false;
 }
- 
+
 void digHole(int holeCnt)
 {
 	int idx[81];
 	int i, k;
-	for (i=0; i<81; i++)
+	for (i = 0; i < 81; i++)
 	{
 		hole[i / 9][i % 9] = 0;
 		idx[i] = i;
 	}
-	for (i=0; i<holeCnt; i++)	//Ëæ»úÍÚ¶´Î»ÖÃ
+	for (i = 0; i < holeCnt; i++) //éšæœºæŒ–æ´ä½ç½®
 	{
 		k = rand() % 81;
 		int tmp = idx[k];
 		idx[k] = idx[i];
 		idx[i] = tmp;
 	}
-	for (i=0; i<holeCnt; i++)
+	for (i = 0; i < holeCnt; i++)
 	{
 		hole[idx[i] / 9][idx[i] % 9] = 1;
 	}
 }
- 
-int main(int argc, char* argv[])
-{	
-	cout<<"Êı¾İÕıÔÚÉú³É£¬ÇëÄÍĞÄµÈ´ı3·ÖÖÓ..."<<endl; 
+
+int main(int argc, char *argv[])
+{
+	cout << "æ•°æ®æ­£åœ¨ç”Ÿæˆï¼Œè¯·è€å¿ƒç­‰å¾…3åˆ†é’Ÿ..." << endl;
 	srand((unsigned)time(NULL));
-	
-	for(int j=0; j<11; j++) 
+
+	for (int j = 0; j < 11; j++)
 	{
-		int Sudo_num=(1<<(j+10));
-		string File_name = "test" + to_string(1<<j) + "K.txt";  
+		int Sudo_num = (1 << (j + 10));
+		string File_name = "test" + to_string(1 << j) + "K.txt";
 		ofstream f1;
 		f1.open(File_name);
-		for(int i=0; i<Sudo_num; i++)
+		for (int i = 0; i < Sudo_num; i++)
 		{
-			memset(sudo,0,sizeof(sudo));
-			memset(hole,0,sizeof(hole));
-		
-			while (!fillFrom(0, 1)) ;
+			memset(sudo, 0, sizeof(sudo));
+			memset(hole, 0, sizeof(hole));
+
+			while (!fillFrom(0, 1))
+				;
 			digHole(64);
-		
-			for (int y=0; y<9; y++)
-			for (int x=0; x<9; x++)
-				(hole[y][x] == 0) ? (f1 << sudo[y][x] ) : (f1 << 0);
-				
-			if(i==Sudo_num-1)
-			continue;
-			
+
+			for (int y = 0; y < 9; y++)
+				for (int x = 0; x < 9; x++)
+					(hole[y][x] == 0) ? (f1 << sudo[y][x]) : (f1 << 0);
+
+			if (i == Sudo_num - 1)
+				continue;
+
 			f1 << "\n";
 		}
 	}
-	cout<<"²âÊÔÊı¾İÉú³ÉÍê³É£¡"<<"\n"; 
-	
+	cout << "æµ‹è¯•æ•°æ®ç”Ÿæˆå®Œæˆï¼"
+		 << "\n";
+
 	return 0;
 }

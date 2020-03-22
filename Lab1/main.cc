@@ -4,26 +4,28 @@
 #include <string.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/sysinfo.h>
 
 #include "sudoku.h"
 
-
-int num_t = 4;                                    // 线程数
+int num_t = get_nprocs_conf(); // 获取CPU核心数作为线程数
 int thread_data[PNUM];
 int total_solved = 0;                                   // 已解决的谜题总数
 int total = 0;                                          // 已经读取的谜题数
-int tot_t = -1;                                          // zongshu
+int tot_t = -1;                                         // zongshu
 int cur_t = 0;                                          // 当前的谜题序号
-bool shutdown = false;                                  // 
+bool shutdown = false;                                  //
 bool (*solve)(int, int[]) = solve_sudoku_dancing_links; // 使用“舞蹈链”算法解决数独
 pthread_t tt[PNUM];
 pthread_mutex_t inc_mutex;
 pthread_mutex_t pnc_mutex;
 
-int64_t now()                                       
+int64_t now()
 {
     struct timeval tv;
-    gettimeofday(&tv, NULL);                        // 获取当前精确时间
+    gettimeofday(&tv, NULL); // 获取当前精确时间
     return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
@@ -31,13 +33,13 @@ int receive_job()
 {
     int ret = -1;
     pthread_mutex_lock(&pnc_mutex);
-    if (cur_t > total-1)
+    if (cur_t > total - 1)
     {
         pthread_mutex_unlock(&pnc_mutex);
         return -1;
     }
 
-    if((ret = cur_t++) == tot_t-1)
+    if ((ret = cur_t++) == tot_t - 1)
     {
         shutdown = true;
         // printf("I'm done\n");
@@ -96,13 +98,14 @@ int main(int argc, char *argv[])
     if (file_path[strlen(file_path) - 1] == '\n')
         file_path[strlen(file_path) - 1] = '\0';
 
-    int a = scanf("%d", &num_t);
-    a++;
-    
+    if (argc == 2)
+        num_t = atoi(argv[1]); // 参数指定线程个数
+    printf("threads number is %d\n", num_t);
+
     int64_t start = now(); // 计时
 
     FILE *fp = fopen(file_path, "r"); // 打开文件
-    
+
     for (int i = 0; i < num_t; i++)
     {
         thread_data[i] = i;
@@ -125,12 +128,11 @@ int main(int argc, char *argv[])
         pthread_join(tt[i], NULL);
 
     for (int i = 0; i < total; i++)
-         printf("%s\n", ansBoard[i]);
+        printf("%s\n", ansBoard[i]);
 
     int64_t end = now();
     double sec = (end - start) / 1000000.0;
-    printf("%f sec %f ms each %d\n", sec, 1000 * sec / total, total_solved);// 输出运行时间
+    printf("%f sec %f ms each %d\n", sec, 1000 * sec / total, total_solved); // 输出运行时间
 
     return 0;
 }
-
