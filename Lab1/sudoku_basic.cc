@@ -5,14 +5,16 @@
 
 #include "sudoku.h"
 
-int board[N];
-int spaces[N];
-int nspaces;
-int (*chess)[COL] = (int (*)[COL])board;
+char ansBoard[PNUM][N+1];
+char puzzle[PNUM][128];
+// int board[N];
+// int spaces[N];
+// int nspaces;
+// int (*chess)[COL] = (int (*)[COL])board;
 
-static void find_spaces()
+static void find_spaces(int board[N], int spaces[N])
 {
-	nspaces = 0;
+	int nspaces = 0;
 	for (int cell = 0; cell < N; ++cell)
 	{
 		if (board[cell] == 0)
@@ -21,19 +23,20 @@ static void find_spaces()
 }
 
 // 将puzzle写入board
-void input(const char in[N])
+void input(const char in[N], int board[N], int spaces[N])
 {
 	for (int cell = 0; cell < N; ++cell)
 	{
 		board[cell] = in[cell] - '0';
 		assert(0 <= board[cell] && board[cell] <= NUM);
 	}
-	find_spaces();
+	find_spaces(board, spaces);
 }
 
 // 检查board是否为正确解
-bool solved()
+bool solved(int board[N])
 {
+	int (*chess)[COL] = (int (*)[COL])board;
 	for (int row = 0; row < ROW; ++row)
 	{
 		// check row
