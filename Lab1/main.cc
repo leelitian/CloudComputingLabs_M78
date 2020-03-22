@@ -7,13 +7,18 @@
 
 #include "sudoku.h"
 
-int cur_t = 0;
-int num_t = 0;
-int num_per_t = 0;
-int total_solved = 0;                            // 已解决的谜题总数
-int total = 0;                                   // 谜题总数
+
+int num_t = 4;                                    // 线程数
+int thread_data[PNUM];
+int total_solved = 0;                                   // 已解决的谜题总数
+int total = 0;                                          // 已经读取的谜题数
+int tot_t = -1;                                          // zongshu
+int cur_t = 0;                                          // 当前的谜题序号
+bool shutdown = false;                                  // 
 bool (*solve)(int, int[]) = solve_sudoku_dancing_links; // 使用“舞蹈链”算法解决数独
-pthread_mutex_t mutex;
+pthread_t tt[PNUM];
+pthread_mutex_t inc_mutex;
+pthread_mutex_t pnc_mutex;
 
 int64_t now()                                       
 {
@@ -22,26 +27,45 @@ int64_t now()
     return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
+int receive_job()
+{
+    int ret = -1;
+    pthread_mutex_lock(&pnc_mutex);
+    if (cur_t > total-1)
+    {
+        pthread_mutex_unlock(&pnc_mutex);
+        return -1;
+    }
+
+    if((ret = cur_t++) == tot_t-1)
+    {
+        shutdown = true;
+        // printf("I'm done\n");
+    }
+    pthread_mutex_unlock(&pnc_mutex);
+    return ret;
+}
+
 void *sudoku_solve(void *args)
 {
-    int cur_id = (*((int *)args)) * num_per_t;
-    int end_id = cur_id+num_per_t < total ? cur_id+num_per_t : total;
+    int id = *((int *)args);
     int board[N];
     int spaces[N];
 
-    // printf("id: %d cur: %d end: %d\n", *((int *)args), cur_id, end_id);
-
-    while (cur_id < end_id)
+    while (!shutdown)
     {
-        // board = puzzle
+        int cur_id = -1;
+        if ((cur_id = receive_job()) == -1)
+            continue;
+        // printf("thread %d get job %d, all %d\n", id, cur_id, total);
         input(puzzle[cur_id], board, spaces);
 
         if (solve(0, board))
         {
             // 临界区
-            pthread_mutex_lock(&mutex);
+            pthread_mutex_lock(&inc_mutex);
             ++total_solved;
-            pthread_mutex_unlock(&mutex);
+            pthread_mutex_unlock(&inc_mutex);
             // 检查结果是否正确
             if (!solved(board))
                 assert(0);
@@ -60,11 +84,7 @@ void *sudoku_solve(void *args)
                 ansBoard[cur_id][i] = puzzle[cur_id][i];
             ansBoard[cur_id][N] = '\0';
         }
-
-        cur_id++;
     }
-    
-    
 }
 
 int main(int argc, char *argv[])
@@ -76,36 +96,30 @@ int main(int argc, char *argv[])
     if (file_path[strlen(file_path) - 1] == '\n')
         file_path[strlen(file_path) - 1] = '\0';
 
-    int a = scanf("%d %d", &num_t, &num_per_t);
+    int a = scanf("%d", &num_t);
     a++;
-
+    
     int64_t start = now(); // 计时
 
     FILE *fp = fopen(file_path, "r"); // 打开文件
-
-    pthread_t tt[num_t];
-    int id[num_t];
+    
+    for (int i = 0; i < num_t; i++)
+    {
+        thread_data[i] = i;
+        pthread_create(&tt[i], NULL, sudoku_solve, (void *)&thread_data[i]);
+    }
 
     while (fgets(puzzle[total], sizeof puzzle, fp) != NULL)
     {
         if (strlen(puzzle[total]) >= N)
         {
-            if (!(++total % num_per_t))
-            {
-            	// printf("creating...%d\n", cur_t);
-            	id[cur_t] = cur_t;
-                pthread_create(&tt[cur_t], NULL, sudoku_solve, (void*)&id[cur_t]);
-                cur_t++;
-            }
+            pthread_mutex_lock(&pnc_mutex);
+            total++;
+            pthread_mutex_unlock(&pnc_mutex);
         }
     }
 
-    if (total % num_per_t)
-    {
-    	// printf("surcreating...%d\n", cur_t);
-    	id[cur_t] = cur_t;
-    	pthread_create(&tt[cur_t], NULL, sudoku_solve, (void*)&id[cur_t]);
-    }
+    tot_t = total;
 
     for (int i = 0; i < num_t; i++)
         pthread_join(tt[i], NULL);
