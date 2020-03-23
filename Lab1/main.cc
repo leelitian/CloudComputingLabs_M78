@@ -78,12 +78,12 @@ void *sudoku_solve(void *args)
         else
         {
             // printf("No: %s", puzzle);
-            /*ansBoard[id][0] = 'N';
-            ansBoard[id][1] = 'o';
-            ansBoard[id][2] = ':';
-            ansBoard[id][3] = ' ';*/
+            ansBoard[cur_id][0] = 'N';
+            ansBoard[cur_id][1] = 'o';
+            ansBoard[cur_id][2] = ':';
+            ansBoard[cur_id][3] = ' ';
             for (int i = 0; i < N; i++)
-                ansBoard[cur_id][i] = puzzle[cur_id][i];
+                ansBoard[cur_id][i+4] = puzzle[cur_id][i];
             ansBoard[cur_id][N] = '\0';
         }
     }
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
     if (argc == 2)
         num_t = atoi(argv[1]); // 参数指定线程个数
-    printf("threads number is %d\n", num_t);
+    //printf("threads number is %d\n", num_t);
 
     int64_t start = now(); // 计时
 
@@ -123,6 +123,8 @@ int main(int argc, char *argv[])
     }
 
     tot_t = total;
+    if (cur_t == tot_t)
+        shutdown = true;
 
     for (int i = 0; i < num_t; i++)
         pthread_join(tt[i], NULL);

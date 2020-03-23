@@ -5,7 +5,7 @@
 
 #include "sudoku.h"
 
-char ansBoard[PNUM][N+1];
+char ansBoard[PNUM][N+9];
 char puzzle[PNUM][128];
 // int board[N];
 // int spaces[N];

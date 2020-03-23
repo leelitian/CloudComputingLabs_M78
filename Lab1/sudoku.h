@@ -4,9 +4,9 @@
 const bool DEBUG_MODE = false;
 enum { ROW=9, COL=9, N = 81, NEIGHBOR = 20 };
 const int NUM = 9;
-const int PNUM = 1000000;
+const int PNUM = 2000000;
 
-extern char ansBoard[PNUM][N+1];
+extern char ansBoard[PNUM][N+9];
 extern char puzzle[PNUM][128];
 /*extern int board[N];
 extern int spaces[N];
