@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 {
     char file_path[128];
 
-    char puzzle[128];                                 
+    char puzzle[128];                                 //输入的谜题
     int total_solved = 0;                            // 已解决的谜题总数
     int total = 0;                                   // 谜题总数
     bool (*solve)(int) = solve_sudoku_dancing_links; // 使用“舞蹈链”算法解决数独
