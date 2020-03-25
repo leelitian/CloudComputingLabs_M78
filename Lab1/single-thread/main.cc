@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 
     int64_t end = now();
     double sec = (end - start) / 1000000.0;
-    printf("%f sec %f ms each %d\n", sec, 1000 * sec / total, total_solved);// 输出运行时间
+    // printf("%f sec %f ms each %d\n", sec, 1000 * sec / total, total_solved);// 输出运行时间
 
     return 0;
 }

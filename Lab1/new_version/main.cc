@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     // 创建线程
     pthread_t th[thread_number];
     int thid[thread_number];
-    printf("threads number is %d\n", thread_number);
+    // printf("threads number is %d\n", thread_number);
     for (int i = 0; i < thread_number; i++)
     {
         thid[i] = i % get_nprocs_conf();
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
     int64_t end = now();
     double sec = (end - start) / 1000000.0;
-    printf("%f sec %f ms each %d\n", sec, 1000 * sec / total_solved, total_solved); // 输出运行时间
+    // printf("%f sec %f ms each %d\n", sec, 1000 * sec / total_solved, total_solved); // 输出运行时间
 
     return 0;
 }
