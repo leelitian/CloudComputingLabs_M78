@@ -1,156 +1,96 @@
-# Lab 1: “Super-fast” Sudoku Solving
+# Lab1 test report
 
-Enter in the folder you have cloned from our lab git repo, and pull the latest commit. 
+## 1. 实验概要
 
-`git pull`
+多线程编程是高性能编程的技术之一，实验1将针对数独求解问题比较多线程与单线程的性能差异、同一功能不同代码实现的性能差异以及多线程在不同硬件环境下的性能差异。
 
-You can find this lab1's instruction in `Lab1/README.md` 
+### 1.1 程序输入
+本项目完成的是Basic Version，程序将在控制台接收用户输入，该输入应为某一目录下的一个数独谜题文件，该文件包含多个数独谜题，每个数独谜题按固定格式存储在该文件中。
 
-All materials of lab1 are in folder `Lab1/`
+### 1.2 程序输出
 
-## 1. Overview
+实验中把数独的解按与输入相对应的顺序输出到**标准输出stdout**
 
-Implement a Sudoku solving program, using multiple threads or multiple processes, running on a single machine. Try to **utilize all your CPU cores** and make your program **run as fast as possible**! 
+### 1.3 Sudoku算法
 
-### Goals
+选择的是老师提供的舞蹈链算法，即`dance-link`算法。
 
-* Practice basic parallel programming skills, such as using multiple threads/processes;
-* Get familiar with Unix OS environment development (eg., file I/O, get timestamp);
-* Get familiar with source code version control tools (git), and learn to collaborate with others using github;
-* Practice how to do performance test and write a high-quality performance test report.
+### 1.4 性能指标
 
-## 2. Background
+实验以求解完单个输入文件里的所有数独题并把数独的解按顺序输出到标准输出所需要的时间开销作为性能指标。一般而言，可以用加速比直观地表示并行程序与串行程序之间的性能差异。
 
-### 2.1 Introduction to Sudoku
+（加速比：串行执行时间与并行执行时间的比率，是串行与并行执行时间之间一个具体的比较指标）
 
-Sudoku (originally called Number Place) is a logic-based combinatorial number-placement puzzle. 
+为了得到总执行时间，我们在用户输入完文件路径，按下回车之后获取当前时刻为`start`，待结果全部输出到标准输出之后获取时刻为`end`，则`(end - start)`即为我们程序运行的总时间。
 
-You are given a 9×9 board of 81 squares logically separated into 9 columsn, 9 rows, and 9 3×3 subsquares. The goal is, given a board with some initial numbers filled in (we call it a **Sudoku puzzle**), fill in the rest of the board so that every column, row, and subsquare have all the digits from 1 to 9 and each digit appears only once (we call it a **Sudoku solution**).
+### 1.5 实验环境
 
+采用的VMware下的Ubuntu虚拟机，**Linux内核版本为4.4.0-21-generic，2GB内存，使用4内核（这里应该是4线程的意思）**。
 
- <u>An example Sudoku puzzle:</u>
+CPU型号为Intel(R) Core(TM) i5-7200U CPU @ 2.5GHz 2.7GHz，2内核4线程。
 
-<img src="src/Sudoku_puzzle.png" alt="Sudoku" title="Sudoku puzzle" style="zoom:67%;" />
+### 1.6 项目结构
 
- <u>An example Sudoku solution to above puzzle:</u>
+* **多线程版本（multi-thread）**：位于`./Lab1`，使用`make`命令可生成可执行文件`sudoku_solve`。
 
-<img src="src/Sudoku_answer.png" alt="Sudoku" title="Sudoku answer" style="zoom:67%;" />
+  不带参数的情况：默认开启CPU内核数量的线程；
 
-### 2.2 Some useful resources
+  带参数的情况：可以指定线程数量为N。
 
-If you have no idea about what algorithms can be used to solve Sudoku puzzles, we suggest you read [this](https://rafal.io/posts/solving-sudoku-with-dancing-links.html). To simplify your work, we have provided a simple [implementation](src/Sudoku/) `(Lab1/src/Sudoku`) of 4 Sudoku solving algorithms (some are slow, some are fast), but without using multiple threads/processes. The two files *test1* and *test1000* contain many puzzles for you to test. 
+  主线程：负责从文件读入数独，存储在数独队列当中；子线程全部退出后，负责输出所有的解。
 
-Of course, you are always encouraged (not mandatory) to implement those algorithms by yourselves and even your own algorithms (if you have time).
+  N个子线程：从数独队列当中获取一个数独进行求解，求解完成后将解写入到全局数组当中。
 
-## 3. Your Lab Task
+  注：线程与物理核心没有进行绑定。
 
-### 3.1 Write a program 
+* **单线程版本（single-thread）**：位于`./Lab1/single-thread`，使用`make`命令可生成可执行文件`sudoku_solve`。
 
-Implement a program which satisfies the following requirements:
+  从老师的代码中抽取舞蹈链算法，进行精简得到。
 
-#### 3.1.1 Program input and output
+  主线程：不断地从文件中读取一个数独，求解之后输出；随后继续读取...依次循环
 
-##### **3.1.1.1 Input** 
+* **测试数据生成器（Test-sample-production）**：位于`./Lab1/Test-sample-production`，使用`make`生成可执行文件`Test-sample-production`
 
-1. Your program should have no arguments during start. For example, if your program is called *sudoku_solve*,  just typing `./sudoku_solve` and your program will run correctly.
-2. But after start, your program should be able to read multiple strings from ***stdin***, where each string is separated by a line-break. Each string is a **name of a file**, which contains one or more Sudoku puzzles that your program is going to solve. 
-3. In the input file, **each line** is a Sudoku puzzle that needs to be solved. Each line contains 81 decimal digits. The 1st-9th digits are the 1st row of the 9×9 grid, and the 10th-18th digits are the 2nd row of the 9×9 grid, and so on. Digit 0 means this digit is unknown and your program needs to figure it out according to the Sudoku rules described above.
+  使用随机挖空算法编写而成的测试数据生成器，在Linux运行之后可以在目录下获得11个测试数据文件，其中包含的数独题目分别为1K，2K，4K，8K，16K，32K，64K，128K，256K，512K和1024K。
 
-<u>Example input to your program</u> may be like this (start your program and read 3 input file names from stdin)
+* **测试结果（Test-report）**：位于`./Lab1/Test-report`，包含测试的原始数据和图片。
 
-<img src="src/ExampleInput.png" alt="ExampleInput" style="zoom:50%;" />
+* **批量读入+线程绑核版本（new_version）**：位于`./Lab1/new_version`，使用`make`生成可执行文件`new_version`。
 
-<u>Example input file format</u>, 
+  此版本没有作为最终的版本，仅在多线程版本（multi-thread）的基础上，改进了批量读入数独和线程绑核，进行了少许测试，但是发现加速比并没有得到显著提升。
 
-```
-./test1 is an input file that contains one Sudoku puzzle problem that need to be solved:
-310000085000903000905000307804000106000401000690000073030502010000804000020706090
+  注：此版本的测试文件需要在window环境下生成，因为windows下的换行为`"\n\r"`
 
-The first Sudoku puzzle problem (first line) actually looks like this when being placed on the 9×9 grid:
----------------------
-3 1 0 | 0 0 0 | 0 8 5
-0 0 0 | 9 0 3 | 0 0 0
-9 0 5 | 0 0 0 | 3 0 7
----------------------
-8 0 4 | 0 0 0 | 1 0 6 
-0 0 0 | 4 0 1 | 0 0 0 
-6 9 0 | 0 0 0 | 0 7 3
----------------------
-0 3 0 | 5 0 2 | 0 1 0
-0 0 0 | 8 0 4 | 0 0 0
-0 2 0 | 7 0 6 | 0 9 0
----------------------
-```
-##### 3.1.1.2 Output
+## 2. 性能测试
 
-1. You should calculate the solutions of all the Sudoku puzzles in all the input files, and output these solutions into ***stdout***.
-2. The solutions should be outputed **in the same sequence** as the puzzles are inputted in. For example, if  there are two input files and the first input file contains 2 puzzles, then, the 1st output solution should be of the 1st puzzle in the first input file, and the 2nd output solution should be of the 2nd puzzle in the first input file, and the 3rd output solution should be of the 1st puzzle in the second input file, and so on.
+程序的性能会受到诸多因素的影响，其中包括软件层面的因素和硬件层面的因素。由于设备配置区别不大，本节将分析比较多线程版本与单线程版本的性能差异，同一功能不同代码实现的性能差异。
 
-<u>Example output</u>:
+### 2.1 多线程与单线程性能比较
 
-```
-Assuming your program has been inputted with two file names from stdin: 
-./test1
-./test2
+单线程版本只能利用1个CPU核心，而多线程程序能使CPU的多个核心并行运作，因此，多线程能够充分发挥多核CPU的优势。在一定范围内，加速比会随着线程数的增加而增长，即时间开销越少、效率越高。当线程数超过CPU核心数时，性能提升将遇到瓶颈，甚至导致下降。
 
-./test1 has the following content:
-310000085000903000905000307804000106000401000690000073030502010000804000020706090
+为了比较多线程与单线程性能差异，实验将提供1个大小为84.0MB、具有1024K个数独题的文件，而后分别使用单线程版本的sudoku_solve和n个sudoku_solve分别对该文件内的所有数独题进行求解，并把解输出到屏幕中，测量这一部分所需要的时间开销并计算加速比。
 
-./test2 has the following content:
-000000010400000000020000000000050407008000300001090000300400200050100000000806000
-000000013000030080070000000000206000030000900000010000600500204000400700100000000
+下图展示了不同线程数对性能造成的影响，其两条折线：**Consumed time**和**Speedup**分别表示随sodoku_solve线程数量的变化所需的时间开销和相应的加速比。从图中可以看出，当总线程数小于CPU总核心数时，随着线程数的增加，所需要的时间开销越小、加速比更高，当线程数为内核数时性能和加速比达到最大。随后，当线程数大于5时，性能提升遇到瓶颈。分析其原因，是因为当线程数多于CPU核心数时，必然存在两个线程共用一个CPU内核的情况，此时一个线程没有处理完就可能被切换到另外一个线程，造成了不必要的上下文切换，从而导致CPU的资源没有利用到解决数独上面。
 
-Then your program should output the following results to stdout:
-312647985786953241945128367854379126273461859691285473437592618569814732128736594
-693784512487512936125963874932651487568247391741398625319475268856129743274836159
-869725413512934687374168529798246135231857946456319872683571294925483761147692358
+![不同线程数需要的时间开销及相应加速比](Test_result/src/不同线程数需要的时间开销及相应加速比.png)
 
-Where the 1st line in the output is the solution to puzzle
-310000085000903000905000307804000106000401000690000073030502010000804000020706090
-and the 2nd line in the output is the solution to puzzle
-000000010400000000020000000000050407008000300001090000300400200050100000000806000
-and the 3rd line in the output is the solution to puzzle
-000000013000030080070000000000206000030000900000010000600500204000400700100000000
-```
-#### 3.1.3 Implementation requirements 
+**分析加速比最高达到2.0的原因**
 
-##### 3.1.3.1 Basic version
+一开始分析原因是每个线程一次只读入一个数独问题，从而导致时间花在上锁解锁的过程中。后来做了一些改进，使得每个线程一次性批量读入N个数独（尝试了N取16，32，64，128），但是加速比没有得到显著变化。后来考虑是不是线程没有绑核，加入了绑核并成功之后，发现加速比也没有得到显著提升。
 
-Your program should be able to: 
+后面考虑是因为**Amdahl定律**，由于程序当中有很大一部分的时间开销是来源于IO和其它串行部分，因此加速比无法继续上升。如果有更大的测试文件，也许加速比可以突破2.0。
 
-1. Accept **one** input file name, and the size of the input file is smaller than 100MB. 
-2. Successfully solve the puzzles in the input file, and output the results in the format described before.
-3. Use multiple threads/processes to make use of most of your machine's CPU cores.
+### 2.2 不同代码实现性能比较
 
-\[Tips\]: 1) Use event queue to dispatch tasks and merge results to/from worker threads. 2) Dynamically detect how many CPU cores are there on your machine, in order to decide how many threads/processes your program uses. 3) Be careful about the contention among multiple threads/processes
+接下来，我们比较了多线程版本（multi-thread）开1个线程和单线程版本（single-thread）运行不同大小的测试文件得到的结果，如下图所示。
 
-##### 3.1.3.2 Advanced version
+理论上，由于多线程版本增加了临界区的控制代码（lock、unlock），应该会比单线程版本慢一些，但是图中显示多线程版本的性能是要比单线程好的。
 
-Your program should be able to: 
+**其原因是我们的多线程版本（multi-thread）在IO方面作出了优化，主要包括以下两点：**
 
-1. Complete all the requirements in the basic version.
-2. Accept **any number of** input file names, and the size of input file can be **any large** (as long as it can be stored on your disk)
-3. When the program is solving puzzles in the previously input file(s), the program can **meanwhile accept more input file names from *stdin***.
+* 将数独的解存放在全局数组当中，当所有问题解决之后一并输出。这有助于提高IO的连续性，顺序写入标准输出，比不连贯的输出要快很多。
+* 首先将数独的解由int[81]转化为char[81]，随后char[81]便能以字符串的形式打印到屏幕上，较输出整形要快不少。
 
-\[Tips\]: 1) Use a dedicated thread to accept input; 2) To avoid consuming all the memory, read different parts of the file into memory and solve them one by one; 3) You are encouraged to try more optimizations such as cache coherency processing.
-
-### 3.2. Finish a performance test report
-
-Please test your code first, and commit a test report along with your lab code into your group’s course github repo. 
-
-The test report should describe your test inputs, and the performance result under various testing conditions. Specifically, in your test report, you should at least contain the following two things:
-
-1. Compare the performance of your “super-fast” Sudoku solving program with a simple single-thread version, using the same input and under the same environment.
-2. Change the input (e.g., change file size) and environment (e.g., using machines with different CPUs and hard drives), and draw several curves of your program’s performance under various conditions.
-
-## 4. Lab submission
-
-Please put all your code in folder `Lab1` and write a `Makefile` so that we **can compile your code in one single command** `make`. The compiled runnable executable binary should be named `sudoku_solve` and located in folder `Lab1`. If you do not know how to write `Makefile`, you can find a simple example in `Lab1/src/Sudoku`. Please carefully following above rules so that TAs can automatically test your code!!!
-
-Please submit your lab program and performance test report following the guidance in the [Overall Lab Instructions](../README.md) (`../README.md`)
-
-## 5. Grading standards
-
-1. You can get 38 points if you can: 1) finish all the requirements of the basic version, and 2) your performance test report has finished the two requirements described before. If you missed some parts, you will get part of the points depending how much you finished
-2. You can get 40 points (full score) if you can: 1) finish all the requirements of the advanced version, and 2) your performance test report has finished the two requirements described before. If you missed some parts, you will get part of the points depending how much you finished.
+![不同代码实现时间开销对比](Test_result/src/不同代码实现时间开销对比.png)
 

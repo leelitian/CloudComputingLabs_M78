@@ -4,13 +4,7 @@
 #include <algorithm>
 
 #include "sudoku.h"
-
-char ansBoard[PNUM][N+9];
-char puzzle[PNUM][128];
-// int board[N];
-// int spaces[N];
-// int nspaces;
-// int (*chess)[COL] = (int (*)[COL])board;
+#define PNUM 1280000
 
 static void find_spaces(int board[N], int spaces[N])
 {
@@ -36,7 +30,7 @@ void input(const char in[N], int board[N], int spaces[N])
 // 检查board是否为正确解
 bool solved(int board[N])
 {
-	int (*chess)[COL] = (int (*)[COL])board;
+	int(*chess)[COL] = (int(*)[COL])board;
 	for (int row = 0; row < ROW; ++row)
 	{
 		// check row

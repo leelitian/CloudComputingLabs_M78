@@ -3,8 +3,8 @@
 
 # all: sudoku_solve, ./Test_sample_production
 
-sudoku_solve: main.cc sudoku_basic.cc sudoku_dancing_links.cc
-	g++ -O3 -pthread -o $@ $^ 
+Test_sample_production: Test_sample_production.cpp
+	g++ -O3 -o $@ $^ 
 
 clean :
-	rm sudoku_solve
+	rm Test_sample_production

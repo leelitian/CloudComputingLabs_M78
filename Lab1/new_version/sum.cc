@@ -1,0 +1,193 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pthread.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <time.h>
+
+#define INPUT_JOB_NUM 10
+#define INPUT_FOLDER_NAME "testInput"
+
+#define THE_HEAVY_JOB_ID 1
+int THE_HEAVY_WEIGHT = 1;
+
+#define CHUNK_SIZE 4096
+#define TOTAL_CHUNK_NUM 10240
+
+typedef unsigned char BYTE;
+
+char inJob[INPUT_JOB_NUM][256];
+int nextJobToBeDone = 0;
+pthread_mutex_t jobQueueMutex = PTHREAD_MUTEX_INITIALIZER;
+
+double time_diff(struct timeval x, struct timeval y)
+{
+    double x_ms, y_ms, diff;
+    x_ms = (double)x.tv_sec * 1000000 + (double)x.tv_usec;
+    y_ms = (double)y.tv_sec * 1000000 + (double)y.tv_usec;
+    diff = (double)y_ms - (double)x_ms;
+    if (diff < 0)
+    {
+        fprintf(stderr, "ERROR! time_diff<0\n");
+        exit(1);
+    }
+    return diff;
+}
+
+long int generateJobs()
+{
+    char command[1000];
+    sprintf(command, "rm -rf %s", INPUT_FOLDER_NAME);
+    int status = system(command);
+    mkdir(INPUT_FOLDER_NAME, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    BYTE writeBuf[CHUNK_SIZE];
+    int writeSize = 0;
+    for (int i = 0; i < CHUNK_SIZE; i++)
+        writeBuf[i] = 1; //All byte set to be 1
+    long int totalBytes = 0;
+    for (int i = 0; i < INPUT_JOB_NUM; i++)
+    {
+        sprintf(inJob[i], "%s/testInput%04d.txt", INPUT_FOLDER_NAME, i);
+        FILE *fp;
+        if ((fp = fopen(inJob[i], "w")) == NULL)
+        {
+            perror("fopen ERROR!");
+            exit(1);
+        }
+        int heavyScale = 1;
+        if (i == THE_HEAVY_JOB_ID)
+            heavyScale = THE_HEAVY_WEIGHT;
+        for (int j = 0; j < TOTAL_CHUNK_NUM * heavyScale; j++)
+        {
+            while (1) //Write until this CHUNK_SIZE has all been written
+            {
+                writeSize = writeSize + fwrite(writeBuf, 1, CHUNK_SIZE - writeSize, fp);
+                totalBytes = totalBytes + writeSize;
+                if (writeSize < 0)
+                {
+                    perror("write ERROR!");
+                    exit(1);
+                }
+                else if (writeSize == CHUNK_SIZE)
+                {
+                    //This CHUNK_SIZE done, go to the next CHUNK_SIZE
+                    writeSize = 0;
+                    break;
+                }
+            }
+        }
+        fclose(fp);
+    }
+    return totalBytes;
+}
+
+typedef struct
+{
+    long int result;
+} ThreadParas;
+
+int recvAJob()
+{
+    int currentJobID = 0;
+    pthread_mutex_lock(&jobQueueMutex);
+    if (nextJobToBeDone >= INPUT_JOB_NUM)
+    {
+        pthread_mutex_unlock(&jobQueueMutex);
+        return -1;
+    }
+    currentJobID = nextJobToBeDone;
+    nextJobToBeDone++;
+    pthread_mutex_unlock(&jobQueueMutex);
+    return currentJobID;
+}
+
+void processAJob(int jobID, long int *sum)
+{
+    BYTE readBuf[CHUNK_SIZE] = {0};
+    int readSize = 0;
+    FILE *fp;
+    if ((fp = fopen(inJob[jobID], "r")) == NULL)
+    {
+        perror("fopen ERROR!");
+        exit(1);
+    }
+    while (1) //Read until EOF
+    {
+        readSize = fread(readBuf, 1, CHUNK_SIZE, fp);
+        if (readSize < 0)
+        {
+            perror("read ERROR!");
+            exit(1);
+        }
+        else if (readSize == 0)
+        { //EOF
+            break;
+        }
+        for (int j = 0; j < readSize; j++)
+            *sum = *sum + readBuf[j];
+        memset(readBuf, 0, sizeof(BYTE) * readSize);
+    }
+    fclose(fp);
+}
+
+void *calcSum(void *args)
+{
+    ThreadParas *para = (ThreadParas *)args;
+    long int sum = 0;
+    int currentJobID = 0;
+    int *whichJobIHaveDone = malloc(INPUT_JOB_NUM * sizeof(int)); //Remember which job I have done
+    long int numOfJobsIHaveDone = 0;                              //Remember how many jobs I have done
+    while (1)
+    {
+        currentJobID = recvAJob();
+        if (currentJobID == -1) //All job done!
+            break;
+
+        whichJobIHaveDone[numOfJobsIHaveDone] = currentJobID;
+        numOfJobsIHaveDone++;
+
+        processAJob(currentJobID, &sum);
+    }
+
+    para->result = sum;
+}
+
+int main(int argc, char *argv[])
+{
+    int numOfWorkerThread = 1;
+    if (argc >= 2)
+        numOfWorkerThread = atoi(argv[1]);
+    if (numOfWorkerThread > INPUT_JOB_NUM)
+        numOfWorkerThread = INPUT_JOB_NUM;
+    if (argc >= 3)
+        THE_HEAVY_WEIGHT = atoi(argv[2]);
+
+    long int totalBytes = generateJobs();
+  
+    ThreadParas thParaMain;
+    calcSum(&thParaMain);
+
+    nextJobToBeDone = 0;
+
+    pthread_t th[numOfWorkerThread];
+    ThreadParas thPara[numOfWorkerThread];
+    for (int i = 0; i < numOfWorkerThread; i++)
+    {
+        if (pthread_create(&th[i], NULL, calcSum, &thPara[i]) != 0)
+        {
+            perror("pthread_create failed");
+            exit(1);
+        }
+    }
+    for (int i = 0; i < numOfWorkerThread; i++)
+        pthread_join(th[i], NULL);
+
+    long int workerSum = 0;
+    for (int i = 0; i < numOfWorkerThread; i++)
+        workerSum = workerSum + thPara[i].result;
+
+    exit(0);
+}
