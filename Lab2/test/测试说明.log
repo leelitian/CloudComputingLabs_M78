@@ -1,0 +1,38 @@
+$ ab -n 10000 -c 10 127.0.0.1:8898/index.html
+
+命令参数的解释：
+
+-n requests Number of requests to perform
+//在测试会话中所执行的请求个数（本次测试总共要访问页面的次数）。默认时，仅执行一个请求。
+
+-c concurrency Number of multiple requests to make
+//一次产生的请求个数（并发数），默认是一次一个。
+
+
+测试之前：
+新建文件post.txt，里面写上"Name=HNU&ID=M78"，这个在测试post方法的时候要用到，要确保在post.txt这个目录运行ab测试
+
+
+1. 改变CPU核心数（1~4），在一张图里面作出“CPU核心数 - GET吞吐率”曲线 和 “CPU核心数 - Post吞吐率”曲线
+
+	吞吐率就是每秒处理的数量：
+	Requests per second:    1171.73 [#/sec] (mean)
+	
+	固定客户端：
+	（GET方法） ab -n 10000 -c 8 127.0.0.1:8888/index.html
+	（POST方法）ab -n 10000 -c 8 -p post.txt -T 'application/x-www-form-urlencoded' 127.0.0.1:8888/Post_show
+	
+	服务器使用默认的线程个数：
+	./httpserver --ip 127.0.0.1 --port 8898
+	
+2. 改变并发数，即-c参数的值，作出“客户并发数 - GET吞吐率”曲线 和 “客户并发数 - Post吞吐率”曲线
+
+	固定客户端
+	（GET方法） ab -n 10000 -c xxx 127.0.0.1:8888/index.html
+	（POST方法）ab -n 10000 -c xxx -p post.txt -T 'application/x-www-form-urlencoded' 127.0.0.1:8888/Post_show
+	
+	并发数-c的取值：1，2，4，6，8，12，16，20，26，32，40
+	
+	
+	服务器使用默认的线程个数：
+	./httpserver --ip 127.0.0.1 --port 8898
