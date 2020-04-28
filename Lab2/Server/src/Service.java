@@ -56,7 +56,14 @@ public class Service implements Runnable {
     }
 
     private File getFile(String url) {
-        String PATH = this.getClass().getResource("/").getPath();
+//        String PATH = this.getClass().getResource("/").getPath();
+    	
+    	// 获取Jar包所在的路径
+    	String PATH = System.getProperty("java.class.path");
+    	int firstIndex = PATH.lastIndexOf(System.getProperty("path.separator")) + 1;
+    	int lastIndex = PATH.lastIndexOf(File.separator) + 1;
+    	PATH = PATH.substring(firstIndex, lastIndex);
+    	
         File file = new File(PATH + (url.isEmpty() ? "index.html" : url));
         if (file.isDirectory()) {
             File[] files = file.listFiles();
