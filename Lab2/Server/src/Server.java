@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -17,8 +17,9 @@ public class Server {
     private static boolean isRunning;
 
     Server(int tnum) {
-        executor = new ThreadPoolExecutor(tnum, 2*tnum, 200, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<Runnable>(tnum));
+        executor = new ThreadPoolExecutor(tnum, tnum, 200, TimeUnit.MILLISECONDS,
+        		new LinkedBlockingQueue<Runnable>());
+//                new ArrayBlockingQueue<Runnable>(2 * tnum));
     }
 
     public static void main(String[] args) {

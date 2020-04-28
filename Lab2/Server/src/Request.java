@@ -1,4 +1,3 @@
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -75,9 +74,9 @@ public class Request {
                 }
             }
 
-            System.out.println("method="+method);
-            System.out.println("url="+url);
-            System.out.println("paras="+paras);
+//            System.out.println("method="+method);
+//            System.out.println("url="+url);
+//            System.out.println("paras="+paras);
 
             return true;
         }
