@@ -1,6 +1,6 @@
 all: httpserver
 
-HttpServer: httpserver.cc
+httpserver: httpserver.cc
 	g++ -O3 -o $@ $^
 
 clean :
