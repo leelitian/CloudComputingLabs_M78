@@ -12,7 +12,7 @@ public class Server {
 
     private static String ip = "127.0.0.1";
     private static int port = 80;
-    private static int tnum = 4;
+    private static int tnum = Runtime.getRuntime().availableProcessors();
 
     private static boolean isRunning;
 

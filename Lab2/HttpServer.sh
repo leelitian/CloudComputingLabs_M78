@@ -1,7 +1,7 @@
 #!/bin/sh
-#HttpServer.sh
+#httpserver.sh
 
-JAR_PATH=./HttpServer.jar
+JAR_PATH=./httpserver.jar
  
 #    $1  port
 #    $2  number-thread

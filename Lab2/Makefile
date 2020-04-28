@@ -1,7 +1,7 @@
-all: HttpServer
+all: httpserver
 
-HttpServer: HttpServer.cc
+HttpServer: httpserver.cc
 	g++ -O3 -o $@ $^
 
 clean :
-	rm HttpServer
+	rm httpserver

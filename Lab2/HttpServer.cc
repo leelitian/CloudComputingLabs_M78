@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    string strSendSms = "./HttpServer.sh " + tport + " " + tnumber_thread;
+    string strSendSms = "./httpserver.sh " + tport + " " + tnumber_thread;
     //        const char * ip = "******";
     //        int port = 8888;
     //        const char * account = "******";
