@@ -62,11 +62,15 @@ Name=xxxx&ID=xxxxxx
 
 #### 安装环境
 
-**curl的安装**
+**Linux下curl的安装**
 
 https://www.cnblogs.com/suidouya/p/7387861.html
 
-**java jdk的安装**
+**Windows下curl的安装**
+
+安装包我发群里了
+
+**Linux下java jdk的安装**
 
 把安装包放到主文件夹下，随后执行以下命令：
 
