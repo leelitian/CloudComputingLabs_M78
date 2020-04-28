@@ -18,7 +18,7 @@ public class Server {
 
     Server(int tnum) {
         executor = new ThreadPoolExecutor(tnum, 2*tnum, 200, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<Runnable>(5));
+                new ArrayBlockingQueue<Runnable>(tnum));
     }
 
     public static void main(String[] args) {
