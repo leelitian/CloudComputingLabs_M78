@@ -1,5 +1,4 @@
 #!/bin/sh
-#httpserver.sh
 
 JAR_PATH=./httpserver.jar
  
