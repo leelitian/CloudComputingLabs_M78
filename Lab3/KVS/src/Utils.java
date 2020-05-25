@@ -61,7 +61,7 @@ public class Utils {
 			while ((line = br.readLine()) != null) {
 				if (line.isEmpty() || line.charAt(0) == '!')
 					continue;
-				System.out.println(line);
+				// System.out.println(line);
 				String[] strArr = line.split(" ");
 
 				if (strArr[0].equals("mode")) {
@@ -112,7 +112,7 @@ public class Utils {
 			while ((line = br.readLine()) != null) {
 				if (line.isEmpty() || line.charAt(0) == '!')
 					continue;
-				System.out.println(line);
+				// System.out.println(line);
 				String[] strArr = line.split(" ");
 
 				if (strArr[0].equals("mode")) {

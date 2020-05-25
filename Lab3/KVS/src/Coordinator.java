@@ -32,7 +32,7 @@ public class Coordinator {
                     participants.add(ps);
                     //new Thread(new HeartbeatSender(Utils.coordinator_port, participant.getPort())).start();
                     cnt++;
-                    System.out.println(cnt);
+                    // System.out.println(cnt);
                 }
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
@@ -45,7 +45,7 @@ public class Coordinator {
             while (isRunning) {
                 for (PService ps: participants) {
                     if (ps.isClosed()) {
-                        System.out.println(ps.getPort());
+                        // System.out.println(ps.getPort());
                         participants.remove(ps);
                     }
                 }
@@ -86,7 +86,7 @@ public class Coordinator {
             try {
                 while (true) {
                     cs.receive();
-                    System.out.println("request accepted");
+                    // System.out.println("request accepted");
 
                     if (participants.size() == 0) {
                         cs.pushError();
@@ -97,7 +97,7 @@ public class Coordinator {
                     for (PService ps: participants) {
                         ps.send(cs.genReqMsg());
                     }
-                    System.out.println("1st pt1");
+                    // System.out.println("1st pt1");
 
                     // 1st phase part 2: get results
                     boolean isPrepared = true;
@@ -107,7 +107,7 @@ public class Coordinator {
                         isPrepared &= Utils.getVal(result, "TYPE").equals("VCOMMIT");
                         ps.forward();
                     }
-                    System.out.println("1st pt2");
+                    // System.out.println("1st pt2");
 
                     // 2nd phase part 1: execute
                     for (PService ps: participants) {
@@ -117,7 +117,7 @@ public class Coordinator {
                             ps.send(cs.genExeMsg("ABORT"));
                         }
                     }
-                    System.out.println("2nd pt1");
+                    // System.out.println("2nd pt1");
 
                     //2nd phase part 2: get results
                     String result2Client = "";
@@ -129,11 +129,11 @@ public class Coordinator {
                         }
                         ps.forward();
                     }
-                    System.out.println("2nd pt2");
+                    // System.out.println("2nd pt2");
 
                     cs.print(result2Client);
                     cs.push();
-                    System.out.println("request done\n");
+                    // System.out.println("request done\n");
                 }
             } catch (IOException e) {
                 e.printStackTrace();

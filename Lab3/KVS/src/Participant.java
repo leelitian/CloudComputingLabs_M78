@@ -8,7 +8,7 @@ import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Participant implements Runnable{
+public class Participant {
 
     private int port;
     private Socket coordinator;
@@ -17,7 +17,7 @@ public class Participant implements Runnable{
     private Map<String, String> data;
     private boolean isConnected;
 
-    Participant(int port) throws IOException {
+    Participant(int port) throws IOException, InterruptedException {
         this.port = port;
         coordinator = new Socket();
         coordinator.bind(new InetSocketAddress(port));
@@ -26,8 +26,8 @@ public class Participant implements Runnable{
         dis = new DataInputStream(coordinator.getInputStream());
         dos = new DataOutputStream(coordinator.getOutputStream());
         data = new HashMap<>();
-        System.out.println("P: " + port);
-        //work();
+        // System.out.println("P: " + port);
+        work();
     }
 
     private void retryConnect() throws IOException {
@@ -112,7 +112,7 @@ public class Participant implements Runnable{
                 isConnected = false;
                 coordinator.close();
                 while (!isConnected) {
-                    System.out.println("retry");
+                    // System.out.println("retry");
                     try {
                         retryConnect();
                     } catch (ConnectException ee) {
@@ -124,14 +124,14 @@ public class Participant implements Runnable{
                 }
             }
 
-            System.out.println(port + " 1\n" + msg);
+            // System.out.println(port + " 1\n" + msg);
             if (Utils.getVal(msg, "TYPE").equals("REQ")) {
                 sendPrepared();
             }
 
             // 2nd phase
             msg = receive();
-            System.out.println(port + " 2\n" + msg);
+            // System.out.println(port + " 2\n" + msg);
             if (Utils.getVal(msg, "TYPE").equals("COMMIT")) {
                 doCommit(msg);
             } else {
@@ -140,19 +140,8 @@ public class Participant implements Runnable{
         }
     }
 
-    @Override
-    public void run() {
-        try {
-            work();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         Utils.getParas("C:/Users/liang/Desktop/coordinator.conf");
-        for (int i = 0; i < Utils.participant_num; ++i) {
-            new Thread(new Participant(Utils.participants_port.get(i))).start();
-        }
+        new Participant(Utils.participants_port.get(0));
     }
 }
