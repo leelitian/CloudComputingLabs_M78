@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Utils {
 
-	private static boolean isCoordinator;
+	public static boolean isCoordinator;
 	public static String coordinator_ip;
 	public static Integer coordinator_port;
 	public static List<String> participants_ip = new ArrayList<>();
@@ -26,7 +26,7 @@ public class Utils {
 		return "";
 	}
 
-	private static void getParas() throws IOException {
+	public static void getParas() throws IOException {
 
 		String config_path = System.getProperty("config_path");
 
