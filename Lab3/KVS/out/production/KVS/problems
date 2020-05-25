@@ -1,0 +1,9 @@
+1. 心跳机制，单独的线程，识别出参与者
+2. 事实上，要实现心跳机制，就要保持协调者与参与者持久的TCP连接，这条连接既可以发送心跳包，也可以发送2PC包
+3. 设计2PC包格式和心跳包格式
+    Protocol=2PC&Type=REQ/VCOMMIT/VABORT/COMMIT/ABORT/DONE&Method=SET/GET/DEL&Key=key&Val=val
+    Protocol=HB&Type=ISOK/OK
+
+4. SET 的引号要去掉
+
+上锁
