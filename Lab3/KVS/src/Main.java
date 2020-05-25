@@ -3,7 +3,7 @@ import java.io.IOException;
 public class Main {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		Utils.getParas();
+		Utils.getParas(args);
 
 		if (Utils.isCoordinator) {
 			new Coordinator(Utils.coordinator_port);

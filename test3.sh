@@ -163,7 +163,7 @@ function check_background_process_start_status
 function language_checking
 {
 	echo "Language checking......"
-	java_file_counter=`ls -1 ${LAB3_ABSOLUTE_PATH}/*.java 2>/dev/null | wc -l`
+	java_file_counter=`ls -1 ${LAB3_ABSOLUTE_PATH}/*.java ${LAB3_ABSOLUTE_PATH}/*.jar 2>/dev/null | wc -l`
 	jar_file_counter=`ls -1 ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar 2>/dev/null | wc -l`
 	c_file_counter=`ls -1 ${LAB3_ABSOLUTE_PATH}/*.c 2>/dev/null | wc -l`
 	cpp_file_counter=`ls -1 ${LAB3_ABSOLUTE_PATH}/*.cc ${LAB3_ABSOLUTE_PATH}/*.cpp ${LAB3_ABSOLUTE_PATH}/*.hpp 2>/dev/null | wc -l`

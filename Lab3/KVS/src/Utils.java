@@ -35,9 +35,13 @@ public class Utils {
 		return "";
 	}
 
-	public static void getParas() throws IOException {
-
-		String config_path = System.getProperty("config_path");
+	public static void getParas(String[] args) throws IOException {
+		
+		String config_path = "";
+		if(args.length == 2 && args[0].equals("--config_path"))
+			config_path = args[1];
+		
+//		String config_path = System.getProperty("config_path");
 
 		if (config_path != null && !config_path.isEmpty()) {
 
@@ -46,15 +50,15 @@ public class Utils {
 
 
 /*-----------------------------------PATH of the JAR------------------------------------------*/
-			String PATH = System.getProperty("java.class.path");
-			int firstIndex = PATH.lastIndexOf(System.getProperty("path.separator")) + 1;
-			int lastIndex = PATH.lastIndexOf(File.separator) + 1;
-			PATH = PATH.substring(firstIndex, lastIndex);
+//			String PATH = System.getProperty("java.class.path");
+//			int firstIndex = PATH.lastIndexOf(System.getProperty("path.separator")) + 1;
+//			int lastIndex = PATH.lastIndexOf(File.separator) + 1;
+//			PATH = PATH.substring(firstIndex, lastIndex);
 /*--------------------------------------------------------------------------------------------*/
 
 //			System.out.println(PATH + config_path);
 			
-			FileReader fr = new FileReader(PATH + config_path);
+			FileReader fr = new FileReader(config_path);
 			BufferedReader br = new BufferedReader(fr);
 
 			String line;
