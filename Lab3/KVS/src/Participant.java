@@ -107,7 +107,7 @@ public class Participant {
             String msg = "";
             try {
                 msg = receive();
-            } catch (SocketException e) {
+            } catch (IOException e) {
                 // e.printStackTrace();
                 isConnected = false;
                 coordinator.close();
