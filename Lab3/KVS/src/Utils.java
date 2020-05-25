@@ -7,6 +7,8 @@ import java.util.List;
 
 public class Utils {
 
+	public static final String CRLF = "\r\n";
+
 	public static boolean isCoordinator;
 	public static String coordinator_ip;
 	public static Integer coordinator_port;
@@ -14,7 +16,14 @@ public class Utils {
 	public static List<Integer> participants_port = new ArrayList<>();
 	public static int participant_num;
 
-	public static final String CRLF = "\r\n";
+	public static boolean isParticipant(int port) {
+		for (int pport: participants_port) {
+			if (pport == port) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static String getVal(String msg, String key) {
 		String[] paras = msg.split("&");

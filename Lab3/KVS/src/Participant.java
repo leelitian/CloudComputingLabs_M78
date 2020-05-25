@@ -1,8 +1,10 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,17 +15,30 @@ public class Participant implements Runnable{
     private DataInputStream dis;
     private DataOutputStream dos;
     private Map<String, String> data;
+    private boolean isConnected;
 
     Participant(int port) throws IOException {
         this.port = port;
         coordinator = new Socket();
         coordinator.bind(new InetSocketAddress(port));
         coordinator.connect(new InetSocketAddress(Utils.coordinator_port));
+        isConnected = coordinator.isConnected();
         dis = new DataInputStream(coordinator.getInputStream());
         dos = new DataOutputStream(coordinator.getOutputStream());
         data = new HashMap<>();
         System.out.println("P: " + port);
         //work();
+    }
+
+    private void retryConnect() throws IOException {
+        coordinator = new Socket();
+        coordinator.bind(new InetSocketAddress(port));
+        coordinator.connect(new InetSocketAddress(Utils.coordinator_port));
+        if (coordinator.isConnected()) {
+            isConnected = true;
+            dis = new DataInputStream(coordinator.getInputStream());
+            dos = new DataOutputStream(coordinator.getOutputStream());
+        }
     }
 
     private String receive() throws IOException {
@@ -86,10 +101,29 @@ public class Participant implements Runnable{
         }
     }
 
-    private void work() throws IOException {
+    private void work() throws IOException, InterruptedException {
         while (true) {
             // 1st phase
-            String msg = receive();
+            String msg = "";
+            try {
+                msg = receive();
+            } catch (SocketException e) {
+                // e.printStackTrace();
+                isConnected = false;
+                coordinator.close();
+                while (!isConnected) {
+                    System.out.println("retry");
+                    try {
+                        retryConnect();
+                    } catch (ConnectException ee) {
+                        Thread.sleep(1000);
+                    }
+                    if (isConnected) {
+                        msg = receive();
+                    }
+                }
+            }
+
             System.out.println(port + " 1\n" + msg);
             if (Utils.getVal(msg, "TYPE").equals("REQ")) {
                 sendPrepared();
@@ -110,7 +144,7 @@ public class Participant implements Runnable{
     public void run() {
         try {
             work();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

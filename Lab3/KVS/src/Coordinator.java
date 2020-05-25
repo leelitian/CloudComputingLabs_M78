@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,13 +23,24 @@ public class Coordinator {
     private void init() throws IOException {
         int cnt = 0;
         while (cnt < Utils.participant_num) {
-            Socket participant = server.accept();
-            PService ps = new PService(participant);
-            new Thread(ps).start();
-            participants.add(ps);
-            cnt++;
-            System.out.println(cnt);
+            try {
+                Socket participant = server.accept();
+                if (Utils.isParticipant(participant.getPort())) {
+                    server.setSoTimeout(1200);
+                    PService ps = new PService(participant);
+                    new Thread(ps).start();
+                    participants.add(ps);
+                    //new Thread(new HeartbeatSender(Utils.coordinator_port, participant.getPort())).start();
+                    cnt++;
+                    System.out.println(cnt);
+                }
+            } catch (SocketTimeoutException e) {
+                e.printStackTrace();
+                break;
+            }
         }
+        server.setSoTimeout(0);
+
         new Thread(() -> {
             while (isRunning) {
                 for (PService ps: participants) {
