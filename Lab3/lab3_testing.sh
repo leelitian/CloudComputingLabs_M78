@@ -12,7 +12,7 @@ COORDINATOR_IP=192.168.66.101
 COORDINATOR_PORT=8001
 NC_TIMEOUT=3
 ERROR_RETRY_TIMES=10
-START_RETYR_TIMES=$[1 * 5]     # 5 minites
+START_RETYR_TIMES=$[1 * 5]     # 5 seconds
 START_COORDINATOR_ONLY=1
 START_COORDINATOR_AND_ALL_PARTICIPANTS=2
 
@@ -220,6 +220,7 @@ function run_kvstore2pcsystem_c_and_other_language_robustly
 		${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem --config_path ${coordinator_config_path} &
 		check_background_process_start_status $!
 		retval=$?
+		sleep 0.5
 
 		if [[ $retval -eq 0 ]]
 		then
@@ -283,6 +284,7 @@ function run_kvstore2pcsystem_java_robustly
 		java -jar ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar --config_path ${coordinator_config_path} &
 		check_background_process_start_status $!
 		retval=$?
+		sleep 0.5
 
 		if [[ $retval -eq 0 ]]
 		then
@@ -345,6 +347,7 @@ function run_kvstore2pcsystem_python_robustly
 		python3 ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.py --config_path ${coordinator_config_path} &
 		check_background_process_start_status $!
 		retval=$?
+		sleep 0.5
 
 		if [[ $retval -eq 0 ]]
 		then
@@ -409,6 +412,7 @@ function run_kvstore2pcsystem_robustly
 		echo "Start system: [ UNKNOWN LANGUAGE ]"
 		run_kvstore2pcsystem_c_and_other_language_robustly $1
 		retval=$?
+
 		if [ $retval -eq $SUCCESS ]
 		then
 			return $SUCCESS
@@ -543,14 +547,14 @@ function send_set_command
 
 	    if [[ $retval_set =~ $standard_error ]]
 	    then
-	    	usleep 500
+	    	sleep 0.5
 	    	continue
 	    else
 	    	break
 	    fi
 	done
 
-	printf -v set_result "${retval_set}"
+	printf -v set_result "%s" "${retval_set}"
 }
 
 get_result=""
@@ -566,14 +570,14 @@ function send_get_command
 
 	    if [[ $retval_get =~ $standard_error ]]
 	    then
-	    	usleep 500
+	    	sleep 0.5
 	    	continue
 	    else
 	    	break
 	    fi
 	done
 
-	printf -v get_result "$retval_get"
+	printf -v get_result "%s" "$retval_get"
 }
 
 del_1_result=""
@@ -589,14 +593,14 @@ function send_del_command_1
 
 	    if [[ $retval_del1 =~ $standard_error ]]
 	    then
-	    	usleep 500
+	    	sleep 0.5
 	    	continue
 	    else
 	    	break
 	    fi
 	done
 
-	printf -v del_1_result "$retval_del1"
+	printf -v del_1_result "%s" "$retval_del1"
 }
 
 del_2_result=""
@@ -613,14 +617,14 @@ function send_del_command_2
 
 	    if [[ $retval_del2 =~ $standard_error ]]
 	    then
-	    	usleep 500
+	    	sleep 0.5
 	    	continue
 	    else
 	    	break
 	    fi
 	done
 
-	printf -v del_2_result "$retval_del2"
+	printf -v del_2_result "%s" "$retval_del2"
 }
 
 
@@ -633,9 +637,9 @@ function set_tag
 	echo "                                       \|/                                   "
 }
 
-printf -v standard_error ".ERROR\r"
-printf -v standard_ok "+OK\r"
-printf -v standard_nil "*1\r\n\$3\r\nnil\r"
+printf -v standard_error "%s" "-ERROR\r"
+printf -v standard_ok "%s" "+OK\r"
+printf -v standard_nil "%s" "*1\r\n\$3\r\nnil\r"
 
 standard_item1=""
 function test_item1
@@ -679,7 +683,7 @@ function test_item2
 }
 
 
-printf -v standard_item3 "*1\r\n\$11\r\nitem3_value\r"
+printf -v standard_item3 "%s" "*1\r\n\$11\r\nitem3_value\r"
 function test_item3
 {
 	set_tag
@@ -725,7 +729,7 @@ function test_item4
 }
 
 
-printf -v standard_item5 ":2\r"
+printf -v standard_item5 "%s" ":2\r"
 function test_item5
 {
 	set_tag
@@ -749,7 +753,7 @@ function test_item5
 }
 
 
-printf -v standard_item6 "*1\r\n\$15\r\nitem6_value_new\r"
+printf -v standard_item6 "%s" "*1\r\n\$15\r\nitem6_value_new\r"
 function test_item6
 {
 	set_tag
@@ -799,7 +803,7 @@ function test_item7
 
 # ######################## advanced version ########################
 
-printf -v standard_item8 "*1\r\n\$17\r\nitem8_key_value_3\r"
+printf -v standard_item8 "%s" "*1\r\n\$17\r\nitem8_key_value_3\r"
 function test_item8
 {
 	set_tag
@@ -838,7 +842,7 @@ function test_item9
 
 	send_get_command 9 item9_key
 
-	if [[ $get_result = $standard_item9 ]]
+	if [[ $get_result =~ $standard_item9 ]]
 	then
 		echo "============================ [PASSED] : Test item 9 ============================"
 		return $PASSED
@@ -915,8 +919,8 @@ function prepare_test_env
 # ######################################################################
 # get ready to start at once
 
-prepare_test_env
-cloud_roll_up
-clean_up
-show_test_result
+# prepare_test_env
+# cloud_roll_up
+# clean_up
+# show_test_result
 
