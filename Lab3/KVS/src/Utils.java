@@ -26,6 +26,9 @@ public class Utils {
 	}
 
 	public static String getVal(String msg, String key) {
+		if (msg.isEmpty()) {
+			return "";
+		}
 		String[] paras = msg.split("&");
 		for (String para: paras) {
 			if (para.split("=")[0].equals(key)) {

@@ -8,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Coordinator {
 
     private static int INITIALIZE_TIMEOUT = 450;
+    private static int HEARTBEAT_INTERVAL = 300;
 
     private ServerSocket server;
     private boolean isRunning;
@@ -55,7 +56,7 @@ public class Coordinator {
                     }
                 }
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(HEARTBEAT_INTERVAL);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -94,6 +95,7 @@ public class Coordinator {
                     cs.receive();
                     System.out.println("request accepted: " + cs.genMsg());
 
+                    System.out.println("psize = " + participants.size());
                     if (participants.size() == 0) {
                         cs.pushError();
                         continue;
@@ -103,7 +105,7 @@ public class Coordinator {
                     for (PService ps: participants) {
                         ps.send(cs.genReqMsg());
                     }
-                    // System.out.println("1st pt1");
+                    System.out.println("1st pt1");
 
                     // 1st phase part 2: get results
                     boolean isPrepared = true;
@@ -113,7 +115,7 @@ public class Coordinator {
                         isPrepared &= Utils.getVal(result, "TYPE").equals("VCOMMIT");
                         ps.forward();
                     }
-                    // System.out.println("1st pt2");
+                    System.out.println("1st pt2");
 
                     // 2nd phase part 1: execute
                     for (PService ps: participants) {
@@ -123,7 +125,7 @@ public class Coordinator {
                             ps.send(cs.genExeMsg("ABORT"));
                         }
                     }
-                    // System.out.println("2nd pt1");
+                    System.out.println("2nd pt1");
 
                     //2nd phase part 2: get results
                     String result2Client = "";
@@ -135,14 +137,14 @@ public class Coordinator {
                         }
                         ps.forward();
                     }
-                    // System.out.println("2nd pt2");
+                    System.out.println("2nd pt2");
 
                     cs.print(result2Client);
                     cs.push();
                     System.out.println("request done: " + cs.genMsg() + "\n");
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
                 System.out.println("Client disconnected");
             }
         }

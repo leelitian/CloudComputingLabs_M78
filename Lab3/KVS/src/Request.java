@@ -42,7 +42,7 @@ public class Request {
                 parasMap.put("METHOD", "DEL");
                 StringBuilder delKeys = new StringBuilder();
                 delKeys.append(paras[4]);
-                for (int i = 6; i < lines*2; i += 2) {
+                for (int i = 6; i <= lines*2; i += 2) {
                     delKeys.append(Utils.CRLF);
                     delKeys.append(paras[i]);
                 }

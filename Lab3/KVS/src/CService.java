@@ -41,7 +41,7 @@ public class CService {
     }
 
     public void pushError() throws IOException {
-        response.print("-ERROR\r\n");
+        response.print(".ERROR\r\n");
         response.push();
     }
 }
