@@ -107,6 +107,7 @@ public class Coordinator {
                             continue;
                         }
                         ps.send(cs.genReqMsg());
+                        System.out.println("Send1: " + ps.getPort());
                     }
                     System.out.println("1st pt1");
 
@@ -117,14 +118,14 @@ public class Coordinator {
                     // 1st phase part 2: get results
                     boolean isPrepared = true;
                     for (PService ps: participants) {
-                        String result = "";
+                        String result = null;
                         while (!ps.isClosed() && (result = ps.getRmsg()) == null);
                         if (checkParticipant(ps)) {
                             continue;
                         }
-                        assert result != null;
                         isPrepared &= Utils.getVal(result, "TYPE").equals("VCOMMIT");
                         ps.forward();
+                        System.out.println("Receive1: " + ps.getPort());
                     }
                     System.out.println("1st pt2");
 
@@ -142,6 +143,7 @@ public class Coordinator {
                         } else {
                             ps.send(cs.genExeMsg("ABORT"));
                         }
+                        System.out.println("Send2: " + ps.getPort());
                     }
                     System.out.println("2nd pt1");
 
@@ -152,17 +154,17 @@ public class Coordinator {
                     //2nd phase part 2: get results
                     String result2Client = "";
                     for (PService ps: participants) {
-                        String result = "";
+                        String result = null;
                         // ensure the participant is connected
                         while (!ps.isClosed() && (result = ps.getRmsg()) == null);
                         if (checkParticipant(ps)) {
                             continue;
                         }
-                        assert result != null;
                         if (Utils.getVal(result, "TYPE").equals("DONE")) {
                             result2Client = Utils.getVal(result, "VAL");
                         }
                         ps.forward();
+                        System.out.println("Receive2: " + ps.getPort());
                     }
                     System.out.println("2nd pt2");
 

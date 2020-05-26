@@ -113,24 +113,7 @@ public class Participant {
         while (true) {
             // 1st phase
             String msg = "";
-            try {
-                msg = receive();
-            } catch (IOException e) {
-                // e.printStackTrace();
-                isConnected = false;
-                coordinator.close();
-                coordinator = null;
-                while (!isConnected) {
-                    try {
-                        reconnect();
-                    } catch (SocketException ee) {
-                        Thread.sleep(RECONNECT_INTERVAL);
-                    }
-                    if (isConnected) {
-                        msg = receive();
-                    }
-                }
-            }
+            msg = getMsgWithHeartbeatChecked(msg);
 
             // System.out.println(port + " 1\n" + msg);
             if (Utils.getVal(msg, "TYPE").equals("REQ")) {
@@ -138,7 +121,7 @@ public class Participant {
             }
 
             // 2nd phase
-            msg = receive();
+            msg = getMsgWithHeartbeatChecked(msg);
             // System.out.println(port + " 2\n" + msg);
             if (Utils.getVal(msg, "TYPE").equals("COMMIT")) {
                 doCommit(msg);
@@ -146,6 +129,28 @@ public class Participant {
                 sendResult("");
             }
         }
+    }
+
+    private String getMsgWithHeartbeatChecked(String msg) throws IOException, InterruptedException {
+        try {
+            msg = receive();
+        } catch (IOException e) {
+            // e.printStackTrace();
+            isConnected = false;
+            coordinator.close();
+            coordinator = null;
+            while (!isConnected) {
+                try {
+                    reconnect();
+                } catch (SocketException ee) {
+                    Thread.sleep(RECONNECT_INTERVAL);
+                }
+                if (isConnected) {
+                    msg = receive();
+                }
+            }
+        }
+        return msg;
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
