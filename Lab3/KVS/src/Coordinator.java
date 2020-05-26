@@ -14,7 +14,7 @@ public class Coordinator {
     private List<PService> participants;
 
     Coordinator(int port) throws IOException {
-        System.out.println("Coordinator starting");
+        System.out.println("Initializing...");
         server = new ServerSocket(port);
         isRunning = true;
         participants = new CopyOnWriteArrayList<>();
@@ -24,18 +24,20 @@ public class Coordinator {
 
     // initialize all the participants
     private void init() throws IOException {
-        int cnt = 0;
-        while (cnt < Utils.participant_num) {
+        int pcnt = 0, ccnt = 0;
+        while (pcnt < Utils.participant_num) {
             try {
-                System.out.println("Initializing...");
                 Socket participant = server.accept();
                 if (Utils.isParticipant(participant.getPort())) {
                     server.setSoTimeout(INITIALIZE_TIMEOUT);
                     PService ps = new PService(participant);
                     new Thread(ps).start();
                     participants.add(ps);
-                    cnt++;
+                    pcnt++;
                     System.out.println("New Participant: " + participant.getPort());
+                } else {
+                    ccnt++;
+                    System.out.println("Client Request: " + ccnt);
                 }
             } catch (SocketTimeoutException e) {
                 // e.printStackTrace();
@@ -43,7 +45,7 @@ public class Coordinator {
             }
         }
         server.setSoTimeout(0);
-        System.out.println("Initialized with " + cnt + " participants");
+        System.out.println("Initialized with " + pcnt + " participants");
 
         new Thread(() -> {
             while (isRunning) {
