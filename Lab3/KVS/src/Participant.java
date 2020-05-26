@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class Participant {
 
-    private int RECONNECT_INTERVAL = 1000;
+    private int RECONNECT_INTERVAL = 200;
 
     private int port;
     private Socket coordinator;

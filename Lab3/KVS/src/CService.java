@@ -16,6 +16,10 @@ public class CService {
         request.parseRequestMessage();
     }
 
+    public String genMsg() {
+        return String.format("METHOD=%s&KEY=%s&VAL=%s", get("METHOD"), get("KEY"), get("VAL").replaceAll("\r\n", " "));
+    }
+
     public String genReqMsg() {
         return "TYPE=REQ";
     }

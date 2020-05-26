@@ -7,11 +7,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Coordinator {
 
+    private static int INITIALIZE_TIMEOUT = 450;
+
     private ServerSocket server;
     private boolean isRunning;
     private List<PService> participants;
 
     Coordinator(int port) throws IOException {
+        System.out.println("Coordinator starting");
         server = new ServerSocket(port);
         isRunning = true;
         participants = new CopyOnWriteArrayList<>();
@@ -27,22 +30,20 @@ public class Coordinator {
                 System.out.println("Initializing...");
                 Socket participant = server.accept();
                 if (Utils.isParticipant(participant.getPort())) {
-                    server.setSoTimeout(1200);
+                    server.setSoTimeout(INITIALIZE_TIMEOUT);
                     PService ps = new PService(participant);
                     new Thread(ps).start();
                     participants.add(ps);
-                    //new Thread(new HeartbeatSender(Utils.coordinator_port, participant.getPort())).start();
                     cnt++;
-                    // System.out.println(cnt);
                     System.out.println("New Participant: " + participant.getPort());
                 }
             } catch (SocketTimeoutException e) {
-                e.printStackTrace();
-                System.out.println("Initialized");
+                // e.printStackTrace();
                 break;
             }
         }
         server.setSoTimeout(0);
+        System.out.println("Initialized with " + cnt + " participants");
 
         new Thread(() -> {
             while (isRunning) {
@@ -90,7 +91,7 @@ public class Coordinator {
             try {
                 while (true) {
                     cs.receive();
-                    // System.out.println("request accepted");
+                    System.out.println("request accepted: " + cs.genMsg());
 
                     if (participants.size() == 0) {
                         cs.pushError();
@@ -137,10 +138,11 @@ public class Coordinator {
 
                     cs.print(result2Client);
                     cs.push();
-                    // System.out.println("request done\n");
+                    System.out.println("request done: " + cs.genMsg() + "\n");
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
+                System.out.println("Client disconnected");
             }
         }
     }
