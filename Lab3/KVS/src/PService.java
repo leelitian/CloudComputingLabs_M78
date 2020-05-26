@@ -54,7 +54,7 @@ public class PService implements Runnable {
                 receiveRequestResult();
                 receiveRequestResult();
             } catch (IOException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
                 isClosed = true;
                 break;
             }

@@ -8,7 +8,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Coordinator {
 
     private static int INITIALIZE_TIMEOUT = 450;
-    private static int HEARTBEAT_INTERVAL = 300;
 
     private ServerSocket server;
     private boolean isRunning;
@@ -46,22 +45,6 @@ public class Coordinator {
         }
         server.setSoTimeout(0);
         System.out.println("Initialized with " + cnt + " participants");
-
-        new Thread(() -> {
-            while (isRunning) {
-                for (PService ps: participants) {
-                    if (ps.isClosed()) {
-                        System.out.println("Disconnected: " + ps.getPort());
-                        participants.remove(ps);
-                    }
-                }
-                try {
-                    Thread.sleep(HEARTBEAT_INTERVAL);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
     private void work() throws IOException {
@@ -71,6 +54,15 @@ public class Coordinator {
             Socket client = server.accept();
             new Thread(new Channel(client)).start();
         }
+    }
+
+    public boolean checkParticipant(PService ps) {
+        if (ps.isClosed()) {
+            System.out.println("Disconnected: " + ps.getPort());
+            participants.remove(ps);
+            return true;
+        }
+        return false;
     }
 
     public static void main(String[] args) throws IOException {
@@ -88,6 +80,15 @@ public class Coordinator {
             this.cs = new CService(client);
         }
 
+        public boolean checkParticipants() throws IOException {
+            // System.out.println("psize = " + participants.size());
+            if (participants.size() == 0) {
+                cs.pushError();
+                return true;
+            }
+            return false;
+        }
+
         @Override
         public void run() {
             try {
@@ -95,30 +96,46 @@ public class Coordinator {
                     cs.receive();
                     System.out.println("request accepted: " + cs.genMsg());
 
-                    System.out.println("psize = " + participants.size());
-                    if (participants.size() == 0) {
-                        cs.pushError();
+                    if (checkParticipants()) {
                         continue;
                     }
 
                     // 1st phase part 1: notify participants
                     for (PService ps: participants) {
+                        if (checkParticipant(ps)) {
+                            continue;
+                        }
                         ps.send(cs.genReqMsg());
                     }
                     System.out.println("1st pt1");
 
+                    if (checkParticipants()) {
+                        continue;
+                    }
+
                     // 1st phase part 2: get results
                     boolean isPrepared = true;
                     for (PService ps: participants) {
-                        String result;
-                        while ((result = ps.getRmsg()) == null);
+                        String result = "";
+                        while (!ps.isClosed() && (result = ps.getRmsg()) == null);
+                        if (checkParticipant(ps)) {
+                            continue;
+                        }
+                        assert result != null;
                         isPrepared &= Utils.getVal(result, "TYPE").equals("VCOMMIT");
                         ps.forward();
                     }
                     System.out.println("1st pt2");
 
+                    if (checkParticipants()) {
+                        continue;
+                    }
+
                     // 2nd phase part 1: execute
                     for (PService ps: participants) {
+                        if (checkParticipant(ps)) {
+                            continue;
+                        }
                         if (isPrepared) {
                             ps.send(cs.genExeMsg("COMMIT"));
                         } else {
@@ -127,17 +144,30 @@ public class Coordinator {
                     }
                     System.out.println("2nd pt1");
 
+                    if (checkParticipants()) {
+                        continue;
+                    }
+
                     //2nd phase part 2: get results
                     String result2Client = "";
                     for (PService ps: participants) {
-                        String result;
-                        while ((result = ps.getRmsg()) == null);
+                        String result = "";
+                        // ensure the participant is connected
+                        while (!ps.isClosed() && (result = ps.getRmsg()) == null);
+                        if (checkParticipant(ps)) {
+                            continue;
+                        }
+                        assert result != null;
                         if (Utils.getVal(result, "TYPE").equals("DONE")) {
                             result2Client = Utils.getVal(result, "VAL");
                         }
                         ps.forward();
                     }
                     System.out.println("2nd pt2");
+
+                    if (checkParticipants()) {
+                        continue;
+                    }
 
                     cs.print(result2Client);
                     cs.push();
