@@ -7,7 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Coordinator {
 
-    private static int INITIALIZE_TIMEOUT = 450;
+    private static int INITIALIZE_TIMEOUT = 1000;
 
     private ServerSocket server;
     private boolean isRunning;
