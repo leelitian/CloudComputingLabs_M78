@@ -1,0 +1,573 @@
+[sudo] password for leelitian: RTNETLINK answers: File exists
+RTNETLINK answers: File exists
+RTNETLINK answers: File exists
+RTNETLINK answers: File exists
+RTNETLINK answers: File exists
+RTNETLINK answers: File exists
+RTNETLINK answers: File exists
+---------------------------------- Global test start ----------------------------------
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 1 ----------------------------------
+Test item 1. Test point: Run kvstore2pcsystem.
+Language checking......
+Language: [ JAVA ]
+Start system: [ JAVA ]
+Initializing...
+Run coordinator successfully
+Run participant[0] successfully
+Run participant[1] successfully
+Run participant[2] successfully
+Run kvstore2pcsystem successfully
+============================ [PASSED] : Test item 1 ============================
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 2 ----------------------------------
+Test item 2. Test point: Set key to hold string value.
+Try to connect: 8002
+Try to connect: 8003
+Try to connect: 8004
+request accepted: *3 $3 SET $9 item2_key $11 item2_value 
+Where are the participants?
+Connected: 8002
+Connected: 8003
+Connected: 8004
+New Participant: 8002
+New Participant: 8003
+New Participant: 8004
+Initialized with 3 participants
+Accepting...
+Accepting...
+request accepted: *3 $3 SET $9 item2_key $11 item2_value 
+Send1: 8002
+Send1: 8003
+Send1: 8004
+1st pt1
+Receive1: 8002
+Receive1: 8003
+Receive1: 8004
+1st pt2
+Send2: 8002
+Send2: 8003
+Send2: 8004
+2nd pt1
+Receive2: 8002
+Receive2: 8003
+Receive2: 8004
+2nd pt2
+request done: *3 $3 SET $9 item2_key $11 item2_value 
+
+item set set_result: +OK
+============================ [PASSED] : Test item 2 ============================
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 3 ----------------------------------
+Test item 3. Test point: Get the value of key.
+Accepting...
+request accepted: *3 $3 SET $9 item3_key $11 item3_value 
+Send1: 8002
+Send1: 8003
+Send1: 8004
+1st pt1
+Receive1: 8002
+Receive1: 8003
+Receive1: 8004
+1st pt2
+Send2: 8002
+Send2: 8003
+Send2: 8004
+2nd pt1
+Receive2: 8002
+Receive2: 8003
+Receive2: 8004
+2nd pt2
+request done: *3 $3 SET $9 item3_key $11 item3_value 
+
+Kill coordinator and then restart.
+Try to connect: 8004Try to connect: 8002
+Try to connect: 8003
+
+Try to connect: 8002
+Try to connect: 8004
+Try to connect: 8003
+./modify.sh: line 475:  2131 Killed                  java -jar ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar --config_path ${coordinator_config_path}
+Language checking......
+Language: [ JAVA ]
+Start system: [ JAVA ]
+Initializing...
+Connected: 8003
+Connected: 8004
+Connected: 8002
+New Participant: 8004
+New Participant: 8003
+New Participant: 8002
+Initialized with 3 participants
+Accepting...
+Run coordinator successfully
+Accepting...
+request accepted: *2 $3 GET $9 item3_key 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *2 $3 GET $9 item3_key 
+
+get_result: *1
+$11
+item3_value
+============================ [PASSED] : Test item 3 ============================
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 4 ----------------------------------
+Test item 4. Test point: Return nil if the key does no exist.
+Accepting...
+request accepted: *2 $3 GET $9 item4_key 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *2 $3 GET $9 item4_key 
+
+============================ [PASSED] : Test item 4 ============================
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 5 ----------------------------------
+Test item 5. Test point: If the DEL command executed, return the number of keys that were removed.
+Accepting...
+request accepted: *3 $3 SET $11 item5_key_1 $13 item5_value_1 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *3 $3 SET $11 item5_key_1 $13 item5_value_1 
+
+Accepting...
+request accepted: *3 $3 SET $11 item5_key_2 $13 item5_value_2 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *3 $3 SET $11 item5_key_2 $13 item5_value_2 
+
+Kill coordinator and then restart.
+Try to connect: 8002Try to connect: 8003
+
+Try to connect: 8004
+Try to connect: 8003
+Try to connect: 8002
+Try to connect: 8004
+Try to connect: 8003
+./modify.sh: line 475:  2229 Killed                  java -jar ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar --config_path ${coordinator_config_path}
+Language checking......
+Language: [ JAVA ]
+Start system: [ JAVA ]
+Initializing...
+Connected: 8004
+Connected: 8002
+New Participant: 8004
+New Participant: 8002
+Run coordinator successfully
+Connected: 8003
+New Participant: 8003
+Initialized with 3 participants
+Accepting...
+Accepting...
+request accepted: *3 $3 DEL $11 item5_key_1 $11 item5_key_2 
+Send1: 8004
+Send1: 8002
+Send1: 8003
+1st pt1
+Receive1: 8004
+Receive1: 8002
+Receive1: 8003
+1st pt2
+Send2: 8004
+Send2: 8002
+Send2: 8003
+2nd pt1
+Receive2: 8004
+Receive2: 8002
+Receive2: 8003
+2nd pt2
+request done: *3 $3 DEL $11 item5_key_1 $11 item5_key_2 
+
+============================ [PASSED] : Test item 5 ============================
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 6 ----------------------------------
+Test item 6. Test point: When associating a new value to an existing key,  it should overwrite the value of the existing entry,
+Accepting...
+request accepted: *3 $3 SET $9 item6_key $11 item6_value 
+Send1: 8004
+Send1: 8002
+Send1: 8003
+1st pt1
+Receive1: 8004
+Receive1: 8002
+Receive1: 8003
+1st pt2
+Send2: 8004
+Send2: 8002
+Send2: 8003
+2nd pt1
+Receive2: 8004
+Receive2: 8002
+Receive2: 8003
+2nd pt2
+request done: *3 $3 SET $9 item6_key $11 item6_value 
+
+Accepting...
+request accepted: *3 $3 SET $9 item6_key $15 item6_value_new 
+Send1: 8004
+Send1: 8002
+Send1: 8003
+1st pt1
+Receive1: 8004
+Receive1: 8002
+Receive1: 8003
+1st pt2
+Send2: 8004
+Send2: 8002
+Send2: 8003
+2nd pt1
+Receive2: 8004
+Receive2: 8002
+Receive2: 8003
+2nd pt2
+request done: *3 $3 SET $9 item6_key $15 item6_value_new 
+
+Kill coordinator and then restart.
+Try to connect: 8002
+Try to connect: 8003
+Try to connect: 8004
+Try to connect: 8002
+Try to connect: 8003
+Try to connect: 8004
+Try to connect: 8002
+Try to connect: 8003
+./modify.sh: line 475:  2293 Killed                  java -jar ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar --config_path ${coordinator_config_path}
+Language checking......
+Language: [ JAVA ]
+Start system: [ JAVA ]
+Initializing...
+Connected: 8004
+New Participant: 8004
+Run coordinator successfully
+Connected: 8003
+Connected: 8002
+New Participant: 8003
+New Participant: 8002
+Initialized with 3 participants
+Accepting...
+Accepting...
+request accepted: *2 $3 GET $9 item6_key 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *2 $3 GET $9 item6_key 
+
+============================ [PASSED] : Test item 6 ============================
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 7 ----------------------------------
+Test item 7. Test point: Correctness testing of DEL command.
+Accepting...
+request accepted: *3 $3 SET $9 item7_key $11 item7_value 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *3 $3 SET $9 item7_key $11 item7_value 
+
+Accepting...
+request accepted: *2 $3 DEL $9 item7_key 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *2 $3 DEL $9 item7_key 
+
+Accepting...
+request accepted: *2 $3 GET $9 item7_key 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *2 $3 GET $9 item7_key 
+
+============================ [PASSED] : Test item 7 ============================
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 8 ----------------------------------
+Test item 8. Test point: Kill one of the participants.
+Accepting...
+request accepted: *3 $3 SET $9 item8_key $17 item8_key_value_1 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *3 $3 SET $9 item8_key $17 item8_key_value_1 
+
+Accepting...
+request accepted: *3 $3 SET $9 item8_key $17 item8_key_value_2 
+Send1: 8004
+Send1: 8003
+Send1: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+Receive1: 8002
+1st pt2
+Send2: 8004
+Send2: 8003
+Send2: 8002
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+Receive2: 8002
+2nd pt2
+request done: *3 $3 SET $9 item8_key $17 item8_key_value_2 
+
+Accepting...
+request accepted: *3 $3 SET $9 item8_key $17 item8_key_value_3 
+Send1: 8004
+Send1: 8003
+Disconnected: 8002
+1st pt1
+Receive1: 8004
+Receive1: 8003
+1st pt2
+Send2: 8004
+Send2: 8003
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+2nd pt2
+request done: *3 $3 SET $9 item8_key $17 item8_key_value_3 
+
+Accepting...
+request accepted: *2 $3 GET $9 item8_key 
+Send1: 8004
+Send1: 8003
+1st pt1
+Receive1: 8004
+Receive1: 8003
+1st pt2
+Send2: 8004
+Send2: 8003
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+2nd pt2
+request done: *2 $3 GET $9 item8_key 
+
+============================ [PASSED] : Test item 8 ============================
+                                       | |                                   
+                                       | |                                   
+                                       \|/                                   
+---------------------------------- Test item 9 ----------------------------------
+Test item 9. Test point: Kill all of the participants.
+Accepting...
+request accepted: *3 $3 SET $9 item9_key $17 item9_key_value_1 
+Send1: 8004
+Send1: 8003
+1st pt1
+Receive1: 8004
+Receive1: 8003
+1st pt2
+Send2: 8004
+Send2: 8003
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+2nd pt2
+request done: *3 $3 SET $9 item9_key $17 item9_key_value_1 
+
+Accepting...
+request accepted: *3 $3 SET $9 item9_key $17 item9_key_value_2 
+Send1: 8004
+Send1: 8003
+1st pt1
+Receive1: 8004
+Receive1: 8003
+1st pt2
+Send2: 8004
+Send2: 8003
+2nd pt1
+Receive2: 8004
+Receive2: 8003
+2nd pt2
+request done: *3 $3 SET $9 item9_key $17 item9_key_value_2 
+
+./modify.sh: line 510: kill: (2146) - No such process
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Disconnected: 8004
+Disconnected: 8003
+1st pt1
+Where are the participants?
+./modify.sh: line 562:  2146 Killed                  java -jar ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar --config_path ${participants_config_path[i]}
+./modify.sh: line 562:  2150 Killed                  java -jar ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar --config_path ${participants_config_path[i]}
+./modify.sh: line 562:  2156 Killed                  java -jar ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar --config_path ${participants_config_path[i]}
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+Accepting...
+request accepted: *2 $3 GET $9 item9_key 
+Where are the participants?
+./modify.sh: line 580: printf: -E: invalid option
+printf: usage: printf [-v var] format [arguments]
+============================ [FAILED] : Test item 9 ============================
+---------------------------------- Global test done ----------------------------------
+./modify.sh: line 497: kill: (2146) - No such process
+./modify.sh: line 497: kill: (2150) - No such process
+./modify.sh: line 497: kill: (2156) - No such process
+./modify.sh: line 92:  2346 Killed                  java -jar ${LAB3_ABSOLUTE_PATH}/kvstore2pcsystem.jar --config_path ${coordinator_config_path}
+Language: []
+Test item 1: PASSED
+Test item 2: PASSED
+Test item 3: PASSED
+Test item 4: PASSED
+Test item 5: PASSED
+Test item 6: PASSED
+Test item 7: PASSED
+Test item 8: PASSED
+Test item 9: FAILED
