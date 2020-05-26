@@ -98,7 +98,6 @@ public class Participant {
                 int cnt = 0;
                 String[] keys = key.split(Utils.CRLF);
                 for (String dkey: keys) {
-                    System.out.println(dkey);
                     if (data.remove(dkey) != null) {
                         cnt ++;
                     }

@@ -83,6 +83,7 @@ public class Coordinator {
         public boolean checkParticipants() throws IOException {
             // System.out.println("psize = " + participants.size());
             if (participants.size() == 0) {
+                System.out.println("Where are the participants?");
                 cs.pushError();
                 return true;
             }

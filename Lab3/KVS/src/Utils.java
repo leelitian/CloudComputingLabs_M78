@@ -26,13 +26,21 @@ public class Utils {
 	}
 
 	public static String getVal(String msg, String key) {
-		if (msg.isEmpty()) {
+		if (msg == null || msg.isEmpty()) {
 			return "";
 		}
 		String[] paras = msg.split("&");
 		for (String para: paras) {
 			if (para.split("=")[0].equals(key)) {
-				return para.split("=")[1];
+				String ret = "";
+				try {
+					ret = para.split("=")[1];
+				} catch (ArrayIndexOutOfBoundsException e) {
+					System.out.println("msg=" + msg);
+					System.out.println("key=" + key);
+					ret = "";
+				}
+				return ret;
 			}
 		}
 		return "";
