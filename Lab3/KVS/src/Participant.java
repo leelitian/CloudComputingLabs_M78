@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class Participant {
 
+    private int RECONNECT_INTERVAL = 1000;
+
     private int port;
     private Socket coordinator;
     private DataInputStream dis;
@@ -19,18 +21,15 @@ public class Participant {
 
     Participant(int port) throws IOException, InterruptedException {
         this.port = port;
-        coordinator = new Socket();
-        coordinator.bind(new InetSocketAddress(port));
-        coordinator.connect(new InetSocketAddress(Utils.coordinator_port));
-        isConnected = coordinator.isConnected();
-        dis = new DataInputStream(coordinator.getInputStream());
-        dos = new DataOutputStream(coordinator.getOutputStream());
         data = new HashMap<>();
-        System.out.println("Connected: " + port);
+        isConnected = false;
+        while (!reconnect()) {
+            Thread.sleep(RECONNECT_INTERVAL);
+        }
         work();
     }
 
-    private void retryConnect() throws IOException {
+    private boolean reconnect() throws IOException {
         coordinator = new Socket();
         coordinator.bind(new InetSocketAddress(port));
         coordinator.connect(new InetSocketAddress(Utils.coordinator_port));
@@ -38,8 +37,9 @@ public class Participant {
             isConnected = true;
             dis = new DataInputStream(coordinator.getInputStream());
             dos = new DataOutputStream(coordinator.getOutputStream());
-            System.out.println("Reconnected: " + port);
+            System.out.println("Connected: " + port);
         }
+        return isConnected;
     }
 
     private String receive() throws IOException {
@@ -116,9 +116,9 @@ public class Participant {
                 while (!isConnected) {
                     System.out.println("Retry: " + port);
                     try {
-                        retryConnect();
+                        reconnect();
                     } catch (SocketException ee) {
-                        Thread.sleep(1000);
+                        Thread.sleep(RECONNECT_INTERVAL);
                     }
                     if (isConnected) {
                         msg = receive();

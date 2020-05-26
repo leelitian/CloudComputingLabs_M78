@@ -24,7 +24,7 @@ public class Coordinator {
         int cnt = 0;
         while (cnt < Utils.participant_num) {
             try {
-                System.out.println("accepting...");
+                System.out.println("Initializing...");
                 Socket participant = server.accept();
                 if (Utils.isParticipant(participant.getPort())) {
                     server.setSoTimeout(1200);
@@ -38,6 +38,7 @@ public class Coordinator {
                 }
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
+                System.out.println("Initialized");
                 break;
             }
         }
@@ -62,6 +63,7 @@ public class Coordinator {
 
     private void work() throws IOException {
         while (isRunning) {
+            System.out.println("Accepting...");
             // accept client's request
             Socket client = server.accept();
             new Thread(new Channel(client)).start();
