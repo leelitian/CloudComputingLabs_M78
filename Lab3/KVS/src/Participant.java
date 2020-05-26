@@ -23,13 +23,20 @@ public class Participant {
         this.port = port;
         data = new HashMap<>();
         isConnected = false;
-        while (!reconnect()) {
-            Thread.sleep(RECONNECT_INTERVAL);
+        while (true) {
+            try {
+                if (reconnect()) {
+                    break;
+                }
+            } catch (ConnectException e) {
+                Thread.sleep(RECONNECT_INTERVAL);
+            }
         }
         work();
     }
 
     private boolean reconnect() throws IOException {
+        System.out.println("Try to connect: " + port);
         coordinator = new Socket();
         coordinator.bind(new InetSocketAddress(port));
         coordinator.connect(new InetSocketAddress(Utils.coordinator_port));
@@ -114,7 +121,6 @@ public class Participant {
                 coordinator.close();
                 coordinator = null;
                 while (!isConnected) {
-                    System.out.println("Retry: " + port);
                     try {
                         reconnect();
                     } catch (SocketException ee) {
