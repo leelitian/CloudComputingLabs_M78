@@ -17,7 +17,7 @@ public class CService {
     }
 
     public String genMsg() {
-        return String.format("METHOD=%s&KEY=%s&VAL=%s", get("METHOD"), get("KEY"), get("VAL").replaceAll("\r\n", " "));
+        return request.getRequestMessage().replaceAll(Utils.CRLF, " ");
     }
 
     public String genReqMsg() {

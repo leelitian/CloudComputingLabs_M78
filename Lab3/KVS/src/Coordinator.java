@@ -24,8 +24,8 @@ public class Coordinator {
 
     // initialize all the participants
     private void init() throws IOException {
-        int pcnt = 0, ccnt = 0;
-        while (pcnt < Utils.participant_num) {
+        int cnt = 0;
+        while (cnt < Utils.participant_num) {
             try {
                 Socket participant = server.accept();
                 if (Utils.isParticipant(participant.getPort())) {
@@ -33,11 +33,10 @@ public class Coordinator {
                     PService ps = new PService(participant);
                     new Thread(ps).start();
                     participants.add(ps);
-                    pcnt++;
+                    cnt++;
                     System.out.println("New Participant: " + participant.getPort());
                 } else {
-                    ccnt++;
-                    System.out.println("Client Request: " + ccnt);
+                    new Thread(new Channel(participant)).start();
                 }
             } catch (SocketTimeoutException e) {
                 // e.printStackTrace();
@@ -45,7 +44,7 @@ public class Coordinator {
             }
         }
         server.setSoTimeout(0);
-        System.out.println("Initialized with " + pcnt + " participants");
+        System.out.println("Initialized with " + cnt + " participants");
 
         new Thread(() -> {
             while (isRunning) {
@@ -143,7 +142,7 @@ public class Coordinator {
                     System.out.println("request done: " + cs.genMsg() + "\n");
                 }
             } catch (IOException e) {
-                // e.printStackTrace();
+                e.printStackTrace();
                 System.out.println("Client disconnected");
             }
         }

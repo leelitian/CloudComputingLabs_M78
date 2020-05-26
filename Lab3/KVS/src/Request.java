@@ -1,22 +1,24 @@
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Request {
-    private DataInputStream dis;
+    private BufferedReader br;
     private String requestMessage;
     private Map<String, String> parasMap;
+    private char[] buffer;
 
     public Request(Socket client) throws IOException {
-        dis = new DataInputStream(client.getInputStream());
+        br = new BufferedReader(new InputStreamReader(client.getInputStream()));
         parasMap = new HashMap<>();
+        buffer = new char[1024];
     }
 
     public void receive() throws IOException {
-        requestMessage = dis.readUTF();
+        int len;
+        while ((len = br.read(buffer)) == -1);
+        requestMessage = new String(buffer, 0, len);
     }
 
     public void parseRequestMessage() {
@@ -54,5 +56,9 @@ public class Request {
 
     public String get(String key) {
         return parasMap.get(key);
+    }
+
+    public String getRequestMessage() {
+        return requestMessage;
     }
 }

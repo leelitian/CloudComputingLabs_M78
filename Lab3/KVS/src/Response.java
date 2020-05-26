@@ -1,5 +1,7 @@
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class Response {
@@ -8,11 +10,11 @@ public class Response {
     private static final String CRLF = "\r\n";
 
     private StringBuilder responseMessage;
-    private DataOutputStream dos;
+    private BufferedWriter bw;
 
     public Response(Socket client) throws IOException {
         responseMessage = new StringBuilder();
-        dos = new DataOutputStream(client.getOutputStream());
+        bw = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
     }
 
     public Response print(String info) {
@@ -26,8 +28,8 @@ public class Response {
     }
 
     public void push() throws IOException {
-        dos.writeUTF(responseMessage.toString());
-        dos.flush();
+        bw.write(responseMessage.toString());
+        bw.flush();
         responseMessage.delete(0, responseMessage.length());
     }
 }
