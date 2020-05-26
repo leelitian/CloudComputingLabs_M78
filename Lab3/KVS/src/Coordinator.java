@@ -11,12 +11,14 @@ public class Coordinator {
 
     private ServerSocket server;
     private boolean isRunning;
+    private boolean isInitialized;
     private List<PService> participants;
 
     Coordinator(int port) throws IOException {
         System.out.println("Initializing...");
         server = new ServerSocket(port);
         isRunning = true;
+        isInitialized = false;
         participants = new CopyOnWriteArrayList<>();
         init();
         work();
@@ -43,6 +45,7 @@ public class Coordinator {
                 break;
             }
         }
+        isInitialized = true;
         server.setSoTimeout(0);
         System.out.println("Initialized with " + cnt + " participants");
     }
@@ -82,7 +85,7 @@ public class Coordinator {
 
         public boolean checkParticipants() throws IOException {
             // System.out.println("psize = " + participants.size());
-            if (participants.size() == 0) {
+            if (participants.size() == 0 || !isInitialized) {
                 System.out.println("Where are the participants?");
                 cs.pushError();
                 return true;
