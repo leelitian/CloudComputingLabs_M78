@@ -26,7 +26,7 @@ public class Participant {
         dis = new DataInputStream(coordinator.getInputStream());
         dos = new DataOutputStream(coordinator.getOutputStream());
         data = new HashMap<>();
-        // System.out.println("P: " + port);
+        System.out.println("Connected: " + port);
         work();
     }
 
@@ -38,6 +38,7 @@ public class Participant {
             isConnected = true;
             dis = new DataInputStream(coordinator.getInputStream());
             dos = new DataOutputStream(coordinator.getOutputStream());
+            System.out.println("Reconnected: " + port);
         }
     }
 
@@ -111,11 +112,12 @@ public class Participant {
                 // e.printStackTrace();
                 isConnected = false;
                 coordinator.close();
+                coordinator = null;
                 while (!isConnected) {
-                    // System.out.println("retry");
+                    System.out.println("Retry: " + port);
                     try {
                         retryConnect();
-                    } catch (ConnectException ee) {
+                    } catch (SocketException ee) {
                         Thread.sleep(1000);
                     }
                     if (isConnected) {

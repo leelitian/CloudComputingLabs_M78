@@ -24,6 +24,7 @@ public class Coordinator {
         int cnt = 0;
         while (cnt < Utils.participant_num) {
             try {
+                System.out.println("accepting...");
                 Socket participant = server.accept();
                 if (Utils.isParticipant(participant.getPort())) {
                     server.setSoTimeout(1200);
@@ -33,6 +34,7 @@ public class Coordinator {
                     //new Thread(new HeartbeatSender(Utils.coordinator_port, participant.getPort())).start();
                     cnt++;
                     // System.out.println(cnt);
+                    System.out.println("New Participant: " + participant.getPort());
                 }
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
@@ -45,7 +47,7 @@ public class Coordinator {
             while (isRunning) {
                 for (PService ps: participants) {
                     if (ps.isClosed()) {
-                        // System.out.println(ps.getPort());
+                        System.out.println("Disconnected: " + ps.getPort());
                         participants.remove(ps);
                     }
                 }
