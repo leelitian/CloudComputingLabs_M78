@@ -919,8 +919,8 @@ function prepare_test_env
 # ######################################################################
 # get ready to start at once
 
-# prepare_test_env
-# cloud_roll_up
-# clean_up
-# show_test_result
+prepare_test_env
+cloud_roll_up
+clean_up
+show_test_result
 
