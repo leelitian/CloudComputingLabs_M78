@@ -20,7 +20,9 @@ java -jar kvstore2pcsystem.jar --config_path ./config/participant2.conf
 
 `./KVS`：JAVA源代码
 
-`./kvstore2pcsystem.jar`：可执行jar包
+`./kvstore2pcsystem.jar`：KV数据库执行文件
+
+`./client.jar`：客户端执行文件
 
 `./lab3_testing.sh`：测试脚本
 
@@ -38,3 +40,4 @@ CPU型号为Intel(R) Core(TM) i5-7200U CPU @ 2.70GHz，2内核4线程
 
 虚拟机CPU线程数：4
 
+![](KVStoreOverview.jpg)
